@@ -1,132 +1,299 @@
-CareConnect
+# CareConnect — Hearing-Accessible Care Recipient Edition
+
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-build-646CFF?logo=vite&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-![WCAG 2.1 AA](https://img.shields.io/badge/WCAG-2.1%20AA-success)
+![Flutter](https://img.shields.io/badge/Flutter-Android%20%7C%20iOS-02569B?logo=flutter&logoColor=white)
+![React Native](https://img.shields.io/badge/React%20Native-Expo-000020?logo=expo&logoColor=white)
+![Electron](https://img.shields.io/badge/Electron-Windows-47848F?logo=electron&logoColor=white)
+![WCAG 2.2 AA](https://img.shields.io/badge/WCAG-2.2%20AA-success)
 ![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8)
-A responsive, accessible medical companion web application for care recipients (patients) living with short-term memory loss and their caregivers. Built React-first as an installable Progressive Web App with WCAG 2.1 Level AA accessibility engineered into every screen.
 
-> Developed as a course artifact for **SWEN 661 — UI Implementation** (Assignment 10: Web Design & Early Implementation).
+A responsive, accessible medical companion application for care recipients and their caregivers, built React-first as an installable Progressive Web App and extended across mobile and desktop.
 
----
-
-Table of contents
-About
-Who it's for
-Key features
-Accessibility
-Tech stack
-Project structure
-Application flow
-Getting started
-Available scripts
-Screens & walkthrough
-Testing
-Deployment
-Roadmap
-Authors
-License
-Acknowledgments
-Disclaimer
+> **SWEN 661 — Human Factors in Software Development / UI Implementation**
+> **Team 2 · The Acuity Health Group** — University of Maryland Global Campus
+> This repository extends the CareConnect base application so that the care recipient experience works for someone who cannot hear it.
 
 ---
 
-About
-CareConnect lowers the daily cognitive load for people who need help remembering, while giving caregivers clear visibility and control over medications and appointments. The patient experience is built around recognition over recall: a persistent orientation bar (who you are, the day and time, where you are), one primary task per screen, always-visible and timestamped medication status, and an undo path on every action. The caregiver experience is a denser dashboard for managing schedules and monitoring adherence.
-The two experiences share a single accessible component library and design-token system, so behavior and styling stay consistent across the app.
-Who it's for
-Care recipients (patients) with short-term memory loss — calm, low-clutter screens, large targets, plain language, and no time pressure.
-Caregivers — an information-rich dashboard with adherence tracking, alerts, and full schedule management.
-Key features
-Patient
-Today home with a prominent "Next thing to do" card and the day's remaining items.
-Medications with pill images, plain-language doses, always-visible status, and a 10-second undo on every dose.
-Appointments in chronological order with full-word dates, locations, and "who is taking me."
-A persistent "Call my caregiver" action on every patient screen.
-Caregiver
-Dashboard with adherence summary, an alerts region for missed/overdue items, and a recent-activity timeline.
-Manage medications and manage appointments with accessible create/edit forms, inline validation, and delete confirmation.
-All caregiver edits propagate to the patient screens.
-Shared
-Public landing page with an accessible, scoped AI assistant (explains the app and guides sign in/up; never gives medical advice).
-Installable PWA with offline access to the day's schedule.
-Accessibility
-CareConnect is designed and verified against 21 WCAG 2.1 A/AA success criteria, with full conformance mapping in `ACCESSIBILITY.md`.
-Highlights: 4.5:1 text contrast, full keyboard operability, visible focus indicators, semantic landmarks, ARIA live regions (`role="status"` / `role="alert"`), 44x44px minimum targets, 320px reflow with no horizontal scroll, and `prefers-reduced-motion` support.
-Tech stack
-Layer Technology
-Framework React 18 + Vite
-Language TypeScript (strict)
-Styling Tailwind CSS with accessibility-first design tokens
-Routing React Router (protected routes)
-State / persistence React Context + `localStorage` (mock data)
-AI assistant Anthropic API via a serverless/edge function
-PWA Web App Manifest + Service Worker
-Testing Jest + React Testing Library + Playwright (E2E)
+## Table of contents
+
+- [The project](#the-project)
+- [Assigned constraints](#assigned-constraints)
+- [Key features](#key-features)
+- [Platform deployment plan](#platform-deployment-plan)
+- [Success criteria](#success-criteria)
+- [The team](#the-team--the-acuity-health-group)
+- [Team charter](#team-charter)
+- [The base application](#the-base-application)
+- [Accessibility](#accessibility)
+- [Tech stack](#tech-stack)
+- [Project structure](#project-structure)
+- [Application flow](#application-flow)
+- [Getting started](#getting-started)
+- [Available scripts](#available-scripts)
+- [Screens & walkthrough](#screens--walkthrough)
+- [Testing](#testing)
+- [Git workflow](#git-workflow)
+- [Deployment](#deployment)
+- [Roadmap](#roadmap)
+- [Authors & credits](#authors--credits)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+- [Disclaimer](#disclaimer)
 
 ---
 
-Project structure
+## The project
+
+**Application name:** CareConnect
+
+For this project, our team is designing and building a cross-platform iteration of the CareConnect care recipient interface, tailored specifically for hearing-impaired individuals. By leveraging AI-powered rapid development tools, our project implements robust visual and haptic alternatives to traditional auditory cues, including real-time transcription and high-contrast visual alerts. This solution will deliver production-ready and thoroughly tested code that will help bridge extremely critical communication gaps, empowering users to independently manage their care plans, medications, and provider communication across any device.
+
+**Target audience:** hearing-impaired care recipients.
+
+**Primary problem this app solves.** Many health apps rely on sound alerts for important updates like medication reminders, which can leave deaf and hard-of-hearing users at massive risk of missing critical care. Our project will help fix that by turning those audio alerts into clear visual and even vibration cues across phone and desktop devices. With our app, hearing-impaired users can easily and independently manage their health without ever missing a beat.
+
+The governing rule: **anything CareConnect communicates through sound must also be communicated visually or in text.** Sound may supplement a notification; it is never the only carrier.
+
+---
+
+## Assigned constraints
+
+Instructor-assigned hearing-impairment constraints, mapped to WCAG 2.2:
+
+| # | Hearing-impairment constraint | CareConnect requirement | WCAG 2.2 |
+|:--|:------------------------------|:------------------------|:---------|
+| 1 | Captions for video | Any video containing speech must provide synchronized captions. | 1.2.2 / 1.2.4 |
+| 2 | Text alternative for audio | Important audio instructions or messages must also be available as readable text. | 1.2.1 |
+| 3 | No sound-only alerts | Medication, appointment, or emergency alerts cannot rely only on sound; show a visible message/icon as well. | 1.3.3 |
+| 4 | Clear visual notifications | Notifications should appear prominently on screen using text and/or icons so users do not need to hear an alert. | 1.3.3 |
+| 5 | User control of audio | If audio plays automatically for more than 3 seconds, the user must be able to pause, stop, or control its volume. | 1.4.2 |
+
+**How the app addresses the constraints**
+
+1. All videos containing spoken dialogue will include synchronized captions that appear as the speech occurs.
+2. Any important information communicated through audio will also be provided in text.
+3. CareConnect will use multimodal notifications so that critical alerts are always represented visually.
+4. Sound may be used as an additional notification mechanism for users who can benefit from it, but it will never be the sole method of communicating an important event.
+5. CareConnect will provide clear, prominent visual notifications for important events.
+6. Pause, stop, and volume controls for applicable automatic audio.
+
+---
+
+## Key features
+
+| Priority | Feature |
+|:---------|:--------|
+| Must-have | Visual alert display for all notifications |
+| Must-have | All audio will have captions or be available as text |
+| Must-have | All videos will have captions |
+| Should-have | Vibration for all notifications |
+| Should-have | All audio can have volume adjusted |
+| Should-have | Customizable captions |
+| Should-have | Audio settings that allow for volume balance and adjustment |
+| Should-have | Smart alerts to automatically escalate any missed notifications |
+| Nice-to-have | All audio can be paused |
+| Nice-to-have | Unique and recognizable vibrations for instant recognition of the alert type without needing to look at the phone |
+
+---
+
+## Platform deployment plan
+
+| Target | Stack | Folder | Status |
+|:-------|:------|:-------|:-------|
+| Web — responsive application / PWA | React 18 + Vite + TypeScript + Tailwind | repository root (moving to `web/`) | Base app in place |
+| Mobile — Android and iOS | Flutter + Dart | `flutter/` | Planned |
+| Mobile — Android and iOS | React Native + Expo | `mobile/` | Planned |
+| Desktop — Windows | Electron | `desktop/` | Planned |
+
+---
+
+## Success criteria
+
+**How will we know the app is successful?**
+
+1. **Users can use the app without needing sound** — users with hearing impairments can check appointments, act on medication reminders, and read important alerts without hearing anything.
+2. **Accessibility requirements are met** — the app meets the hearing-related WCAG 2.2 requirements identified above: captions, text alternatives, visual alerts, and audio controls.
+3. **Users can complete tasks easily** — common tasks are completed without confusion or help from another person.
+4. **Users are satisfied** — users find the app easy to understand, easy to use, and accessible.
+
+**Metrics**
+
+- **Task completion rate** — percentage of users who successfully complete important tasks, such as checking an appointment or responding to a medication reminder.
+- **Accessibility test results** — number of issues found during testing; the goal is no major issues related to the hearing-impaired requirements.
+- **Caption accuracy** — percentage of spoken content correctly represented in captions.
+- **User satisfaction** — users rate how easy and accessible the app is on a 1–5 scale.
+
+**Known risks.** Applying the accessibility requirements to every screen rather than some; making visual alerts noticeable without being distracting; producing accurate, readable captions. Open technical questions: how captions are authored and verified, which service converts important audio to text, how visual notifications are best presented, and how we test across phones, computers, and browsers.
+
+---
+
+## The team — The Acuity Health Group
+
+| Name | GitHub | Time zone | Computer OS |
+|:-----|:-------|:----------|:------------|
+| Victor Lee | [@viclee1](https://github.com/viclee1) | EST | Windows 11 / macOS |
+| Ashvini Tandale | [@ashvinit10](https://github.com/ashvinit10) | EST | Windows 10 |
+| Rehman Uddin | [@89uddinrt](https://github.com/89uddinrt) | EST | Windows 10 |
+| Justin Zhang | [@jzhang1717](https://github.com/jzhang1717) | EST | Windows 10 |
+
+Email addresses and emergency contact numbers are recorded in the team charter, not in this public repository.
+
+**Communication.** Microsoft Teams is the primary channel, with an expected response time of within an hour. The team meets every Thursday at 8:00 PM ET via Microsoft Teams.
+
+### Roles and rotation
+
+Three roles rotate every two weeks:
+
+- **Technical Lead** — decisions regarding the codebase and implementation.
+- **QA / Testing Lead** — decisions regarding testing strategy, test cases, and validation.
+- **Documentation Lead** — decisions regarding project documentation, requirements, and user guides.
+
+| Weeks | Technical Lead | QA / Testing Lead | Documentation Lead |
+|:------|:---------------|:------------------|:-------------------|
+| 1–2 | Victor Lee | Ashvini Tandale | Rehman Uddin |
+| 3–4 | Justin Zhang | Victor Lee | Ashvini Tandale |
+| 5–6 | Rehman Uddin | Justin Zhang | Victor Lee |
+| 7–8 | Ashvini Tandale | Rehman Uddin | Justin Zhang |
+| 9–10 | Victor Lee | Ashvini Tandale | Rehman Uddin |
+| 11–12 | Justin Zhang | Victor Lee | Ashvini Tandale |
+
+### Team charter
+
+**[📄 Team Charter — SWEN 661 Team 2 (The Acuity Health Group)](https://docs.google.com/document/d/1CXC4Ii-OSpHTlw7S83jnhrKQ_lcf94RTRDii08QdtM0/edit)**
+
+The charter covers team information, the communication plan, role definitions and rotation, the git repository and workflow, work philosophy, code review standards, contributions, decision making, and conflict resolution. It is signed by all four members.
+
+---
+
+## The base application
+
+CareConnect began as a responsive, accessible medical companion web application for care recipients (patients) living with short-term memory loss and their caregivers, built React-first as an installable Progressive Web App. Our project extends that care recipient experience so it also works for a user who is deaf or hard of hearing; the sections below describe the application we are building on.
+
+CareConnect lowers the daily cognitive load for people who need help remembering, while giving caregivers clear visibility and control over medications and appointments. The patient experience is built around recognition over recall: a persistent orientation bar (who you are, the day and time, where you are), one primary task per screen, always-visible and timestamped medication status, and an undo path on every action. The caregiver experience is a denser dashboard for managing schedules and monitoring adherence. The two experiences share a single accessible component library and design-token system, so behavior and styling stay consistent across the app.
+
+### Who it's for
+
+- **Care recipients (patients)** — calm, low-clutter screens, large targets, plain language, and no time pressure. The base application was designed around short-term memory loss; our work adds full usability for care recipients who are deaf or hard of hearing.
+- **Caregivers** — an information-rich dashboard with adherence tracking, alerts, and full schedule management. Caregivers matter to this project mainly at the boundary: reaching a care recipient who cannot take a phone call.
+
+### Base feature set
+
+**Patient**
+
+- Today home with a prominent "Next thing to do" card and the day's remaining items.
+- Medications with pill images, plain-language doses, always-visible status, and a 10-second undo on every dose.
+- Appointments in chronological order with full-word dates, locations, and "who is taking me."
+- A persistent "Call my caregiver" action on every patient screen.
+
+**Caregiver**
+
+- Dashboard with adherence summary, an alerts region for missed/overdue items, and a recent-activity timeline.
+- Manage medications and manage appointments with accessible create/edit forms, inline validation, and delete confirmation.
+- All caregiver edits propagate to the patient screens.
+
+**Shared**
+
+- Public landing page with an accessible, scoped AI assistant (explains the app and guides sign in/up; never gives medical advice).
+- Installable PWA with offline access to the day's schedule.
+
+---
+
+## Accessibility
+
+The base application is designed and verified against 21 WCAG 2.1 A/AA success criteria, with full conformance mapping in [`ACCESSIBILITY.md`](ACCESSIBILITY.md). Highlights: 4.5:1 text contrast, full keyboard operability, visible focus indicators, semantic landmarks, ARIA live regions (`role="status"` / `role="alert"`), 44×44px minimum targets, 320px reflow with no horizontal scroll, and `prefers-reduced-motion` support.
+
+On top of that baseline, this project adds the five hearing-impairment constraints above, measured against **WCAG 2.2 Level AA**. Accessibility is a merge gate, not a final pass — the QA / Testing Lead can block a merge on a failing check.
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+|:------|:-----------|
+| Web framework | React 18 + Vite |
+| Language | TypeScript (strict) |
+| Styling | Tailwind CSS with accessibility-first design tokens |
+| Routing | React Router (protected routes) |
+| State / persistence | React Context + `localStorage` (mock data) |
+| Backend (optional) | Supabase — auth and data, protected by Row Level Security |
+| AI assistant | Anthropic API via a Supabase Edge Function (key stays server-side) |
+| PWA | Web App Manifest + Service Worker |
+| Mobile | Flutter + Dart · React Native + Expo |
+| Desktop | Electron (Windows) |
+| Tooling | ESLint, `tsc --noEmit`, Playwright (screenshot automation) |
+| Design | Figma (Education) |
+| Accessibility testing | axe DevTools, WAVE, Lighthouse, NVDA / VoiceOver |
+| Coverage | Coverage Gutters (VS Code) + `lcov` |
+
+---
+
+## Project structure
+
+The tree below reflects what is actually in the repository today. Platform folders are added as each target is scaffolded.
 
 ```
-careconnect/
+careconnect-swen661/
 ├── public/
-│   ├── icons/                       # PWA maskable icons
+│   ├── icons/                       # PWA icons (192/512, maskable, apple-touch)
 │   ├── manifest.webmanifest         # PWA manifest
-│   └── favicon.svg
+│   └── sw.js                        # service worker (offline day schedule)
 ├── docs/
 │   └── screenshots/                 # README images (01-landing.png … 14-caregiver-activity.png)
 ├── scripts/
-│   └── screenshots.ts               # Playwright screenshot automation
-├── api/
-│   └── assistant.ts                 # serverless function — Anthropic API proxy (key stays server-side)
+│   ├── screenshots.ts               # Playwright screenshot automation
+│   ├── gen-icons.mjs                # PWA icon generation
+│   ├── verify-pwa.mjs               # PWA manifest / service worker check
+│   └── verify-responsive.mjs        # responsive reflow check
 ├── src/
 │   ├── components/                  # Accessible component library
+│   │   ├── Banner.tsx
+│   │   ├── BigActionTile.tsx
 │   │   ├── Button.tsx
 │   │   ├── Card.tsx
-│   │   ├── BigActionTile.tsx
+│   │   ├── ChatBot.tsx              # accessible, scoped AI assistant
+│   │   ├── ConfirmDialog.tsx
 │   │   ├── Field.tsx
-│   │   ├── Banner.tsx
-│   │   └── ConfirmDialog.tsx
-│   ├── context/
+│   │   ├── InstallPrompt.tsx
+│   │   ├── Layout.tsx               # app shell + semantic landmarks
+│   │   ├── ProtectedRoute.tsx       # redirects unauthenticated users
+│   │   └── index.ts
+│   ├── auth/
 │   │   ├── AuthContext.tsx          # mock auth, persisted to localStorage
-│   │   └── RoleContext.tsx          # role + current patient profile
-│   ├── shell/
-│   │   ├── AppShell.tsx             # layout + semantic landmarks
-│   │   ├── OrientationBar.tsx       # persistent date/time/greeting/"you are here"
-│   │   ├── Navigation.tsx           # bottom nav (patient) / sidebar (caregiver)
-│   │   └── ProtectedRoute.tsx       # redirects unauthenticated users
-│   ├── pages/
-│   │   ├── landing/
-│   │   │   ├── LandingPage.tsx
-│   │   │   ├── SignIn.tsx
-│   │   │   ├── SignUp.tsx
-│   │   │   └── Assistant.tsx        # accessible AI chatbot
-│   │   ├── RoleChooser.tsx
-│   │   ├── patient/
-│   │   │   ├── Today.tsx
-│   │   │   ├── Medications.tsx
-│   │   │   └── Appointments.tsx
-│   │   └── caregiver/
-│   │       ├── Dashboard.tsx
-│   │       ├── ManageMedications.tsx
-│   │       ├── ManageAppointments.tsx
-│   │       └── Activity.tsx
-│   ├── data/
-│   │   └── mockData.ts              # seed medications & appointments
-│   ├── lib/
-│   │   └── storage.ts               # localStorage helpers
-│   ├── styles/
-│   │   └── tokens.css               # design tokens + global focus styles
+│   │   └── mockAuth.ts
+│   ├── context/
+│   │   └── AppContext.tsx           # role + application state
+│   ├── pages/                       # Landing, SignIn, SignUp, RoleChooser,
+│   │   │                            # Home, Today, Medications, Appointments,
+│   │   │                            # Schedule, Memories, Contacts,
+│   │   │                            # Caregiver, CaregiverDashboard,
+│   │   │                            # ManageMedications, ManageAppointments,
+│   │   └── …                        # ActivityLog
+│   ├── data/                        # mock data + local stores
+│   │   ├── mockData.ts
+│   │   ├── medsStore.ts
+│   │   ├── apptStore.ts
+│   │   ├── appointmentsData.ts
+│   │   └── caregiverStore.ts
+│   ├── pwa/
+│   │   └── registerSW.ts            # service worker registration
+│   ├── types/index.ts
 │   ├── App.tsx                      # route definitions
 │   ├── main.tsx                     # app entry
-│   └── serviceWorker.ts             # PWA offline caching
-├── .env                             # local secrets (gitignored — never commit)
+│   └── index.css                    # global styles + design tokens
+├── supabase/
+│   └── functions/chat-assistant/    # Edge Function — Anthropic API proxy
+│       └── index.ts
+├── flutter/                         # (planned) Flutter + Dart — Android & iOS
+├── mobile/                          # (planned) React Native + Expo — Android & iOS
+├── desktop/                         # (planned) Electron — Windows
 ├── .env.example                     # placeholder environment variables
 ├── .gitignore
-├── ACCESSIBILITY.md                 # WCAG 2.1 AA conformance mapping
-├── LICENSE                          # MIT
+├── ACCESSIBILITY.md                 # WCAG conformance mapping
+├── License                          # MIT
 ├── README.md
 ├── index.html
 ├── package.json
@@ -135,8 +302,11 @@ careconnect/
 └── vite.config.ts
 ```
 
-> The tree above reflects the intended architecture. To regenerate the exact tree from your machine, run `tree -I "node_modules|dist" -L 3` (install `tree` if needed) or copy the structure from the VS Code Explorer.
-> Application flow
+Each platform folder carries its own `.gitignore`; the root `.gitignore` handles secrets, OS clutter, editor state, and logs across all of them.
+
+---
+
+## Application flow
 
 ```mermaid
 flowchart TD
@@ -153,39 +323,54 @@ flowchart TD
 
 ---
 
-Getting started
-Prerequisites
-Node.js 18+ and npm
-A modern browser
-(Optional) An Anthropic API key for the landing-page assistant
-Get the code
+## Getting started
+
+### Prerequisites
+
+| Tool | Version | Needed for |
+|:-----|:--------|:-----------|
+| Node.js + npm | 18 LTS or newer | web, React Native, Electron |
+| Flutter SDK + Dart | 3.x (stable channel) | Flutter build |
+| Expo CLI | current (`npx expo`) | React Native build |
+| Android Studio + SDK | current stable | Flutter, React Native |
+| Xcode | current stable (macOS only) | iOS builds |
+| Git | 2.30+ | all |
+| A modern browser | — | web |
+| (Optional) An Anthropic API key | — | landing-page assistant |
+
+Run `flutter doctor` before reporting a broken Flutter build.
+
+### Get the code
+
 Clone with Git (HTTPS):
 
 ```bash
-git clone https://github.com/aliminagar/careconnect-swen661.git
+git clone https://github.com/viclee1/careconnect-swen661.git
 cd careconnect-swen661
 ```
 
 Clone with SSH:
 
 ```bash
-git clone git@github.com:aliminagar/careconnect-swen661.git
+git clone git@github.com:viclee1/careconnect-swen661.git
 cd careconnect-swen661
 ```
 
 Clone with GitHub CLI:
 
 ```bash
-gh repo clone aliminagar/careconnect-swen661
+gh repo clone viclee1/careconnect-swen661
 cd careconnect-swen661
 ```
 
-Download without Git: on the GitHub repo page, click Code → Download ZIP, then unzip and open the folder.
-Install and configure
+Download without Git: on the GitHub repo page, click **Code → Download ZIP**, then unzip and open the folder.
+
+### Web — React + Vite
 
 ```bash
 npm install
 cp .env.example .env     # then fill in your values
+npm run dev              # http://localhost:5173
 ```
 
 `.env` variables:
@@ -194,43 +379,71 @@ cp .env.example .env     # then fill in your values
 VITE_SUPABASE_URL=your_supabase_url            # only if using Supabase
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key  # public/anon key (protected by RLS)
 # Server-side only — NEVER prefix with VITE_:
-ANTHROPIC_API_KEY=your_anthropic_key           # used by api/assistant.ts
+ANTHROPIC_API_KEY=your_anthropic_key           # used by the chat-assistant Edge Function
 ```
 
-> The app runs on mock `localStorage` data without any backend keys. If the Anthropic key is absent, the assistant falls back to a scripted guided helper.
-> Run
+Anything prefixed `VITE_` is compiled into the browser bundle — never put a secret behind that prefix. The app runs on mock `localStorage` data without any backend keys; if the Anthropic key is absent, the assistant falls back to a scripted guided helper.
+
+### Flutter — Android & iOS
+
+> Planned. These are the commands the team will use once `flutter/` is scaffolded.
 
 ```bash
-npm run dev      # http://localhost:5173
+cd flutter
+flutter pub get
+flutter devices          # confirm an emulator or device is attached
+flutter run
 ```
 
-Publish your own copy to GitHub
-If the project isn't on GitHub yet:
+Release artifacts: `flutter build apk --release` or `flutter build ios --release`.
+
+### React Native — Expo
+
+> Planned. These are the commands the team will use once `mobile/` is scaffolded.
 
 ```bash
-git init
-git add .
-git commit -m "Initial commit: CareConnect"
-git branch -M main
-git remote add origin https://github.com/aliminagar/careconnect-swen661.git
-git push -u origin main
+cd mobile
+npm install
+npx expo start           # press a for Android, i for iOS, w for web
 ```
 
-> Confirm `.env` is listed in `.gitignore` before your first push so secrets never reach the repo.
+`ios/` and `android/` are generated by `npx expo prebuild` and stay untracked while the project remains in the managed workflow.
+
+### Desktop — Electron (Windows)
+
+> Planned. These are the commands the team will use once `desktop/` is scaffolded.
+
+```bash
+cd desktop
+npm install
+npm run dev              # launches the Electron shell in development
+npm run build            # packages a Windows installer into dist/
+```
+
+Electron builds are most reliable on the OS being targeted. Any member without Windows should let CI produce the installer on a `windows-latest` runner and treat that build as authoritative.
+
+> **This section grows with the project.** Each member owns at least one platform build across the term. When you scaffold a platform, update its subsection here in the same pull request — setup instructions must work on a clean clone, and keeping them accurate is the Documentation Lead's standing responsibility.
 
 ---
 
-Available scripts
-Script Description
-`npm run dev` Start the Vite dev server
-`npm run build` Production build to `/dist`
-`npm run preview` Preview the production build locally
-`npm test` Run Jest + React Testing Library unit/component tests
-`npm run screenshots` Generate README screenshots via Playwright
+## Available scripts
+
+These are the scripts currently defined in `package.json`:
+
+| Script | Description |
+|:-------|:------------|
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Production build to `/dist` |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint across the project |
+| `npm run typecheck` | TypeScript check, no emit (`tsconfig.app.json`) |
+| `npm run screenshots` | Regenerate the README screenshots via Playwright |
+
+Additional helper scripts in `scripts/` are run directly with Node: `node scripts/gen-icons.mjs`, `node scripts/verify-pwa.mjs`, `node scripts/verify-responsive.mjs`.
 
 ---
 
-Screens & walkthrough
+## Screens & walkthrough
 
 > **Capturing screenshots:** run `npm run dev`, then `npm run screenshots` (Playwright), or capture manually with your OS tool. Images live in `docs/screenshots/` and are embedded below.
 
@@ -316,52 +529,139 @@ Appointment list and accessible add/edit form.
 
 Timestamped log of taken/skipped doses and check-ins.
 
+│   └── screenshots/                 # README images (01-landing.png … 14-caregiver-activity.png)
 ![Caregiver activity log](docs/screenshots/14-caregiver-activity.png)
 
 ---
 
-Testing
-Unit & component: Jest + React Testing Library (`npm test`), targeting 60–75% coverage per the course milestones.
-End-to-end: Playwright specs for core flows (sign in → take medication → caregiver sees adherence).
-Accessibility: axe DevTools, Lighthouse (target 95+ accessibility), and manual screen-reader testing (NVDA / VoiceOver) plus keyboard-only navigation.
-Deployment
+## Testing
+
+**Currently in the repository**
+
+- **Static checks** — ESLint (`npm run lint`) and TypeScript strict mode (`npm run typecheck`). Both must pass before a pull request merges.
+- **Playwright** — installed and used by `npm run screenshots` for automated screen capture, and by the `verify-pwa` / `verify-responsive` helper scripts.
+
+**Planned**
+
+- **Unit & component tests** — a test runner and React Testing Library are not yet installed. Adding them, wiring an `npm test` script, and reaching the 60–75% coverage target from the course milestones is owned by the QA / Testing Lead. Coverage is read with Coverage Gutters from `lcov` output.
+- **End-to-end** — Playwright specs for core flows (sign in → take medication → caregiver sees adherence).
+
+**Accessibility verification**
+
+- Automated: axe DevTools and WAVE (zero critical or serious issues), Lighthouse accessibility ≥ 95.
+- Manual: full keyboard traversal, visible focus on every interactive element, screen-reader pass with NVDA or VoiceOver.
+- Hearing-specific: captions present on every video, a text alternative for every audio item, no sound-only alert path anywhere, and pause/stop/volume control on any audio playing automatically for more than three seconds.
+
+---
+
+## Git workflow
+
+`main` is always in a working, demonstrable state. Nobody commits directly to `main` — the branch is protected, and merges arrive only through reviewed pull requests. Each member commits at minimum once a week.
+
+**Branch naming:** `type/short-kebab-description`
+
+| Prefix | Use | Example |
+|:-------|:----|:--------|
+| `feature/` | New functionality | `feature/caption-track-player` |
+| `fix/` | Bug fix | `fix/alert-banner-focus-trap` |
+| `a11y/` | Accessibility-specific change | `a11y/visual-medication-alert` |
+| `docs/` | Documentation only | `docs/wcag-22-mapping` |
+| `test/` | Tests only | `test/playwright-caption-flow` |
+| `chore/` | Tooling, dependencies, config | `chore/electron-windows-build` |
+
+**Pull requests**
+
+- Fill in the template: what changed, why, how it was tested, screenshots for anything user-visible.
+- At least one approving review before merge. Nobody merges their own PR.
+- Shared code needs the current Technical Lead's approval.
+- Care recipient UI changes also need the QA Lead's accessibility sign-off.
+- CI green — lint, typecheck, build.
+
+**Merge policy**
+
+- **Squash and merge** is the default, so `main` keeps one clean, readable commit per pull request.
+- The squash commit message is edited to be meaningful; the default list of work-in-progress commits is not acceptable.
+- Branches are deleted after merge.
+- Authors rebase on the latest `main` before requesting review, so reviewers see the change in its final context.
+- Merge conflicts are resolved by the branch author, in conversation with whoever wrote the conflicting code. If they cannot agree, the current Technical Lead decides.
+- Reverting is normal and carries no blame. If a merged change breaks `main`, it is reverted first and diagnosed afterward.
+
+**Code review**
+
+- Every line of code that reaches `main` is read by at least one member who did not write it.
+- Reviewers distinguish **blocking** concerns from suggestions by prefixing non-blocking comments with `nit:`. A `nit:` never holds up a merge.
+- Reviewers run the branch locally for any user-visible change rather than reviewing only the diff, because this interface has to be judged by how it behaves, not by how it reads.
+- Authors respond to every comment, either with a change or with a reason. Comments are not silently dismissed.
+- Review assignments rotate so that no pair of members reviews only each other.
+
+**Work philosophy.** Work items are assigned effort points, and tasks are distributed to keep effort points as even as possible. Estimates are adjusted as the team learns to score tasks more accurately. Each member owns at least one platform build across the term, and each member runs at least one full accessibility audit, including a screen-reader pass.
+
+---
+
+## Deployment
 
 ```bash
 npm run build       # outputs to /dist
 ```
 
-Deploy `/dist` to Netlify or Vercel. Configure the assistant's serverless function and set `ANTHROPIC_API_KEY` in the host's environment settings (never client-side).
-Roadmap
-Real backend with Supabase + Row Level Security
-Multi-patient support for caregivers
-Push-notification medication reminders
-Localization / bilingual support
+Deploy `/dist` to Netlify or Vercel. Configure the assistant's Supabase Edge Function and set `ANTHROPIC_API_KEY` in the host's environment settings — never client-side.
+
+Windows desktop artifacts are produced by Electron. Members without a native Windows install should build through GitHub Actions on a `windows-latest` runner and treat CI as the authoritative build environment.
 
 ---
 
-Authors
-Alireza Minagar — Author & Developer
-AI/ML Software Engineer · Founder & CTO, Perfect Strokes LLC · Adjunct Professor, UMGC.
-Physician-scientist turned software engineer, with graduate work in Bioinformatics, Software Engineering, and Cybersecurity, focused on the intersection of healthcare and applied AI/ML.
-GitHub: `https://github.com/aliminagar`
-LinkedIn: `https://www.linkedin.com/in/alireza-minagar-ai`
-Website: `https://alirezaminagar-md.netlify.app/`
-Additional contributors (SWEN 661 team), if applicable:
-`Name` — role
-`Name` — role
+## Roadmap
 
-> Replace the placeholder links and add team members as needed.
-> License
-> Distributed under the MIT License. See `LICENSE` for full text.
+- Cross-platform ports: Flutter, React Native + Expo, and Electron
+- Captioned video component with a required caption track
+- Text alternatives and transcripts for every audio item
+- Multimodal alert architecture — visual first, sound optional
+- Text-first emergency path replacing the phone-call-only action
+- Haptic / vibration alert patterns per alert type
+- Real backend with Supabase + Row Level Security
+- Multi-patient support for caregivers
+- Localization / bilingual support
+
+---
+
+## Authors & credits
+
+**Team 2 — The Acuity Health Group** (SWEN 661, University of Maryland Global Campus)
+
+- **Victor Lee** — [@viclee1](https://github.com/viclee1)
+- **Ashvini Tandale** — [@ashvinit10](https://github.com/ashvinit10)
+- **Rehman Uddin** — [@89uddinrt](https://github.com/89uddinrt)
+- **Justin Zhang** — [@jzhang1717](https://github.com/jzhang1717)
+
+Roles rotate every two weeks — see [Roles and rotation](#roles-and-rotation).
+
+**Base application**
+
+- **Alireza Minagar** — author and developer of the CareConnect base application, used here under the MIT License.
+  AI/ML Software Engineer · Founder & CTO, Perfect Strokes LLC · Adjunct Professor, UMGC.
+  GitHub: [@aliminagar](https://github.com/aliminagar) · LinkedIn: [alireza-minagar-ai](https://www.linkedin.com/in/alireza-minagar-ai) · Website: [alirezaminagar-md.netlify.app](https://alirezaminagar-md.netlify.app/)
+
+---
+
+## License
+
+Distributed under the MIT License. See [`License`](License) for full text.
 
 ```
 Copyright (c) 2026 Alireza Minagar / Perfect Strokes LLC
 ```
 
-> MIT is permissive and ideal for a portfolio/course project. If you prefer an explicit patent grant use **Apache-2.0**; if you want copyleft (derivatives must stay open) use **GPL-3.0**. Tell me and I'll swap the LICENSE file.
-> Acknowledgments
-> University of Maryland Global Campus — SWEN 661 (UI Implementation)
-> The WCAG 2.1 guidelines and the WAI-ARIA Authoring Practices
-> Initial scaffolding accelerated with Bolt.new; completed and hardened locally
-> Disclaimer
-> CareConnect is an educational prototype built as a course artifact. It is not a medical device, provides no medical, dosage, or clinical advice, and must not be used for real patient care or to manage actual medications. It uses mock data only and is not intended to store real protected health information (PHI). For any real health decision, consult a licensed clinician.
+---
+
+## Acknowledgments
+
+- University of Maryland Global Campus — SWEN 661 (Human Factors in Software Development / UI Implementation)
+- The WCAG 2.1 and 2.2 guidelines and the WAI-ARIA Authoring Practices
+- The CareConnect base application by Alireza Minagar
+- Initial scaffolding accelerated with Bolt.new; completed and hardened locally
+
+---
+
+## Disclaimer
+
+CareConnect is an educational prototype built as a course artifact. It is not a medical device, provides no medical, dosage, or clinical advice, and must not be used for real patient care or to manage actual medications. It uses mock data only and is not intended to store real protected health information (PHI). For any real health decision, consult a licensed clinician.
