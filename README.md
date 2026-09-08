@@ -288,7 +288,12 @@ careconnect-swen661/
 ├── supabase/
 │   └── functions/chat-assistant/    # Edge Function — Anthropic API proxy
 │       └── index.ts
-├── flutter/                         # (planned) Flutter + Dart — Android & iOS
+├── flutter/                         # Flutter + Dart — Android & iOS (in progress, see below)
+│   ├── lib/                         # app, screens, state, models, data, widgets
+│   ├── test/                        # 217 tests — models, state, widgets, utils
+│   ├── docs/                        # screenshots + security-scan.md
+│   ├── coverage/                    # lcov.info + rendered HTML report
+│   └── README.md                    # points back to this section
 ├── mobile/                          # (planned) React Native + Expo — Android & iOS
 ├── desktop/                         # (planned) Electron — Windows
 ├── .env.example                     # placeholder environment variables
@@ -611,9 +616,13 @@ Windows desktop artifacts are produced by Electron. Members without a native Win
 
 ## Flutter mobile client
 
-The mobile build of CareConnect for care recipients who are deaf or hard of hearing lives in [`flutter/`](flutter/), built against the Week 3 design prototype. It carries Victor Lee's three screens (Contacts, Messaging, Accessibility Settings) and the shared app shell, merged with Justin Zhang's Welcome/Sign In/Sign Up/Home/My Day screens. Rehman Uddin's screens (Appointments, Medicines, Memories) exist as clearly-labeled placeholders so the six-destination navigation works end to end. To run it, see [Flutter — Android & iOS](#flutter--android--ios) under Getting started.
+Documentation for the Flutter client is organized below to match the course's Part 3: Documentation checklist — project description, how to run the app, how to run tests, link to the coverage report, known issues/limitations, this week's contributions, and AI usage. The client itself lives in [`flutter/`](flutter/), which carries its own short README pointing back here.
 
-### Screens
+### Project description
+
+The mobile build of CareConnect for care recipients who are deaf or hard of hearing, built against the Week 3 design prototype. It carries Victor Lee's three screens (Contacts, Messaging, Accessibility Settings) and the shared app shell, merged with Justin Zhang's Welcome/Sign In/Sign Up/Home/My Day screens. Rehman Uddin's screens (Appointments, Medicines, Memories) exist as clearly-labeled placeholders so the six-destination navigation works end to end.
+
+**Screens**
 
 | Screen | Route | Summary |
 |:-------|:------|:--------|
@@ -627,7 +636,7 @@ The mobile build of CareConnect for care recipients who are deaf or hard of hear
 
 That's 7 functional screens against the assignment's 7–10 target.
 
-### How it meets the assigned constraints
+**How it meets the assigned constraints**
 
 - **Captions** — a badge on video messages states caption availability; size/color/on-off live in Settings with a live preview.
 - **Text alternative for audio** — voicemail renders as a transcript instead of a play button.
@@ -637,11 +646,20 @@ That's 7 functional screens against the assignment's 7–10 target.
 
 **Notify**, the replacement for a phone call: one non-strobing flash reading "Alert sent to *name*," an optional haptic, and a line written into the conversation confirming the alert went — so a deaf user has a record, not just a flash that already happened.
 
-### Architecture
+**Architecture.** Provider-based state (four `ChangeNotifier` controllers with no widget imports, so each is unit-tested directly), `go_router` with a persistent shell around the six top-level destinations, and `SharedPreferences` for settings, one key per preference, with safe defaults on a corrupt store.
 
-Provider-based state (four `ChangeNotifier` controllers with no widget imports, so each is unit-tested directly), `go_router` with a persistent shell around the six top-level destinations, and `SharedPreferences` for settings, one key per preference, with safe defaults on a corrupt store.
+### How to run the app
 
-### Tests
+```bash
+cd flutter
+flutter pub get
+./run.sh                 # boots an iPhone simulator + Android emulator and runs on both
+# or: ./dev.sh           # interactively pick one device
+```
+
+Release artifacts: `flutter build apk --release` or `flutter build ios --release --no-codesign`. Run `flutter doctor` first if the build doesn't come up cleanly. Full prerequisites (Flutter SDK, Android Studio, Xcode) are listed under [Getting started](#getting-started).
+
+### How to run tests
 
 ```bash
 cd flutter
@@ -649,13 +667,25 @@ flutter analyze
 flutter test --coverage
 ```
 
-217 tests at 98.9% line coverage against a 60% floor. Coverage report: [`flutter/coverage/lcov.info`](flutter/coverage/lcov.info) — render it locally with `genhtml flutter/coverage/lcov.info -o flutter/coverage/html && open flutter/coverage/html/index.html`. An `osv-scanner` dependency scan plus a manual secrets/network review found no issues (`flutter/docs/security-scan.md`).
+217 tests at 98.9% line coverage against a 60% floor. An `osv-scanner` dependency scan plus a manual secrets/network review found no issues — see [`flutter/docs/security-scan.md`](flutter/docs/security-scan.md).
 
-### Known limitations
+### Link to test coverage report
+
+Raw report: [`flutter/coverage/lcov.info`](flutter/coverage/lcov.info). Render it as HTML locally with:
+
+```bash
+genhtml flutter/coverage/lcov.info -o flutter/coverage/html && open flutter/coverage/html/index.html
+```
+
+A pre-rendered copy is also checked in at [`flutter/coverage/html/index.html`](flutter/coverage/html/index.html).
+
+### Known issues or limitations
 
 Data lives in memory except for accessibility settings; video, audio, and the captioned call are represented in the UI but not backed by a real media pipeline; vibration patterns are approximated with named haptic impacts; sign in/up validate their forms but don't check a real account store yet.
 
-### Team member contributions — Week 4
+### Team member contributions this week
+
+Week 4:
 
 | Member | Screens |
 |:-------|:--------|
@@ -663,7 +693,7 @@ Data lives in memory except for accessibility settings; video, audio, and the ca
 | Rehman Uddin | Appointments, Medicines, Memories — pending, still on his own branch |
 | Victor Lee | Contacts, Messaging, Accessibility Settings — plus the shared shell: theme, router, navigation, models, repositories, Provider controllers, and shared widgets; merged in Justin's screens and fixed a tablet-layout overflow bug in `StatusBadge` uncovered while screenshotting |
 
-### AI usage
+### AI usage summary
 
 The Week 3 design doc and wireframe screenshots were uploaded to Claude to help design the tablet and mobile versions of these screens, with a human in the loop reviewing and refining the output to stay aligned with the designers' intent.
 
@@ -671,7 +701,8 @@ The Week 3 design doc and wireframe screenshots were uploaded to Claude to help 
 
 ## Roadmap
 
-- Cross-platform ports: Flutter, React Native + Expo, and Electron
+- Finish the Flutter client: Rehman's Appointments/Medicines/Memories screens, a real media pipeline for video/audio, and account-backed sign in/up
+- Cross-platform ports: React Native + Expo and Electron
 - Captioned video component with a required caption track
 - Text alternatives and transcripts for every audio item
 - Multimodal alert architecture — visual first, sound optional
