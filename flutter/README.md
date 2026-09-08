@@ -229,6 +229,12 @@ you're running CareConnect.
 
 To stop it, go back to the terminal and press `q`.
 
+**Prefer to pick one target at a time?** Use `./dev.sh` instead — it asks
+whether you want an iPhone, an iPad (tablet), or Android, boots that one if
+it isn't already running, and launches the app there. Plain `flutter run`
+only works once something is already booted; it doesn't offer to start one
+for you.
+
 <details>
 <summary>Advanced: running on just one platform, or a real device</summary>
 
