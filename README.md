@@ -611,7 +611,7 @@ Windows desktop artifacts are produced by Electron. Members without a native Win
 
 ## Flutter mobile client
 
-The mobile build of CareConnect for care recipients who are deaf or hard of hearing lives in [`flutter/`](flutter/), built against the Week 3 design prototype. It carries Victor Lee's three screens (Contacts, Messaging, Accessibility Settings) and the shared app shell, merged with Justin Zhang's Welcome/Sign In/Sign Up/Home/My Day screens. Rehman Uddin's screens (Appointments, Medicines, Memories) exist as clearly-labeled placeholders so the six-destination navigation works end to end.
+The mobile build of CareConnect for care recipients who are deaf or hard of hearing lives in [`flutter/`](flutter/), built against the Week 3 design prototype. It carries Victor Lee's three screens (Contacts, Messaging, Accessibility Settings) and the shared app shell, merged with Justin Zhang's Welcome/Sign In/Sign Up/Home/My Day screens. Rehman Uddin's screens (Appointments, Medicines, Memories) exist as clearly-labeled placeholders so the six-destination navigation works end to end. To run it, see [Flutter — Android & iOS](#flutter--android--ios) under Getting started.
 
 ### Screens
 
@@ -649,11 +649,19 @@ flutter analyze
 flutter test --coverage
 ```
 
-217 tests at 98.9% line coverage against a 60% floor. An `osv-scanner` dependency scan plus a manual secrets/network review found no issues (`flutter/docs/security-scan.md`).
+217 tests at 98.9% line coverage against a 60% floor. Coverage report: [`flutter/coverage/lcov.info`](flutter/coverage/lcov.info) — render it locally with `genhtml flutter/coverage/lcov.info -o flutter/coverage/html && open flutter/coverage/html/index.html`. An `osv-scanner` dependency scan plus a manual secrets/network review found no issues (`flutter/docs/security-scan.md`).
 
 ### Known limitations
 
 Data lives in memory except for accessibility settings; video, audio, and the captioned call are represented in the UI but not backed by a real media pipeline; vibration patterns are approximated with named haptic impacts; sign in/up validate their forms but don't check a real account store yet.
+
+### Team member contributions — Week 4
+
+| Member | Screens |
+|:-------|:--------|
+| Justin Zhang | Welcome, Sign In, Sign Up, Home, My Day — merged into this branch from `WK4-Justin` |
+| Rehman Uddin | Appointments, Medicines, Memories — pending, still on his own branch |
+| Victor Lee | Contacts, Messaging, Accessibility Settings — plus the shared shell: theme, router, navigation, models, repositories, Provider controllers, and shared widgets; merged in Justin's screens and fixed a tablet-layout overflow bug in `StatusBadge` uncovered while screenshotting |
 
 ### AI usage
 
