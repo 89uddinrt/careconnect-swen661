@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../screens/auth/sign_in_screen.dart';
+import '../../screens/auth/sign_up_screen.dart';
 import '../../screens/contacts/contacts_screen.dart';
+import '../../screens/home/home_screen.dart';
 import '../../screens/messaging/message_thread_screen.dart';
+import '../../screens/my_day/my_day_screen.dart';
 import '../../screens/pending/pending_screen.dart';
 import '../../screens/settings/settings_screen.dart';
+import '../../screens/splash/welcome_screen.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/empty_state.dart';
 import 'routes.dart';
@@ -25,9 +30,12 @@ import 'routes.dart';
 /// it covers the bar the way a drill-down should and keeps a normal push
 /// animation and back-swipe.
 ///
-/// The four screens owned by other team members are registered as
-/// [PendingScreen] placeholders so the prototype's navigation works end to end.
-/// Each is one line to replace when a branch merges.
+/// Welcome, sign in and sign up sit outside the shell too, ahead of it: they
+/// are the app's cold-start flow, not a tab a user switches back to.
+///
+/// The three screens still owned by Rehman are registered as [PendingScreen]
+/// placeholders so the prototype's navigation works end to end. Each is one
+/// line to replace when that branch merges.
 GoRouter buildRouter({String initialLocation = Routes.initial}) {
   // Built per router rather than at file scope, so two routers can exist at
   // once (as they do across widget tests) without clashing over one key.
@@ -44,6 +52,24 @@ GoRouter buildRouter({String initialLocation = Routes.initial}) {
     navigatorKey: rootKey,
     initialLocation: initialLocation,
     routes: <RouteBase>[
+      GoRoute(
+        path: Routes.welcome,
+        name: Routes.welcomeName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: Routes.signIn,
+        name: Routes.signInName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const SignInScreen(),
+      ),
+      GoRoute(
+        path: Routes.signUp,
+        name: Routes.signUpName,
+        builder: (BuildContext context, GoRouterState state) =>
+            const SignUpScreen(),
+      ),
       ShellRoute(
         navigatorKey: shellKey,
         builder: (BuildContext context, GoRouterState state, Widget child) =>
@@ -62,21 +88,20 @@ GoRouter buildRouter({String initialLocation = Routes.initial}) {
                 page(const SettingsScreen()),
           ),
 
-          // ── Owned by other team members ─────────────────────────────────
           GoRoute(
             path: Routes.home,
             name: Routes.homeName,
-            pageBuilder: (BuildContext context, GoRouterState state) => page(
-              const PendingScreen(title: 'Home', owner: 'Justin'),
-            ),
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                page(const HomeScreen()),
           ),
           GoRoute(
             path: Routes.myDay,
             name: Routes.myDayName,
-            pageBuilder: (BuildContext context, GoRouterState state) => page(
-              const PendingScreen(title: 'My Day', owner: 'Justin'),
-            ),
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                page(const MyDayScreen()),
           ),
+
+          // ── Owned by other team members ─────────────────────────────────
           GoRoute(
             path: Routes.appointments,
             name: Routes.appointmentsName,

@@ -1,6 +1,8 @@
-# Security scan — Victor's screens (Contacts, Messaging, Settings)
+# Security scan — CareConnect Flutter client
 
-Run 2026-09-08, against `WK4-Victor` (Dart SDK 3.13.1, Flutter's bundled toolchain).
+Run 2026-09-08, against `WK4-Victor` (Dart SDK 3.13.1, Flutter's bundled
+toolchain), covering the full merged app: Victor's Contacts/Messaging/Settings,
+the shared shell, and Justin's Welcome/Sign In/Sign Up/Home/My Day.
 
 ## Dependency vulnerabilities — OSV-Scanner
 
@@ -34,11 +36,14 @@ checks were run against `lib/`:
 | Plaintext `http://` network calls | None found (no network calls at all yet — data is mocked in-memory, per [Known issues](../README.md#known-issues-and-limitations)) |
 | `dart:mirrors`, `Process.run`, `eval`-style dynamic execution | None found |
 | Sensitive data in `SharedPreferences` | Only accessibility preferences (caption size/colour, volume, vibration pattern) are persisted — no PII, credentials, or health data |
+| Sign In / Sign Up credential handling | Forms validate locally and route straight to Home; no credential is sent, logged, or stored anywhere yet, since there is no backend to send it to |
 
 ## Notes / follow-up
 
-- No backend or network layer exists yet on this branch (contacts/messages are
-  seeded from local mock fixtures), so there is no attack surface for
-  injection, TLS, or auth vulnerabilities to scan for at this stage.
+- No backend or network layer exists yet on this branch (contacts, messages
+  and sign-in credentials are all local — either mock fixtures or simply
+  discarded after form validation), so there is no attack surface for
+  injection, TLS, or auth vulnerabilities to scan for at this stage. That
+  changes once a real auth backend lands — re-scan then.
 - Re-run `osv-scanner scan source -L pubspec.lock` after any dependency bump,
   and before final submission, to catch newly disclosed CVEs.

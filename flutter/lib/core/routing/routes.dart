@@ -4,6 +4,15 @@
 /// here without hunting through the widget tree — and teammates landing the
 /// remaining CareConnect screens have one file to edit.
 abstract final class Routes {
+  static const String welcome = '/welcome';
+  static const String welcomeName = 'welcome';
+
+  static const String signIn = '/sign-in';
+  static const String signInName = 'signIn';
+
+  static const String signUp = '/sign-up';
+  static const String signUpName = 'signUp';
+
   static const String home = '/home';
   static const String homeName = 'home';
 
@@ -29,8 +38,8 @@ abstract final class Routes {
   static const String settings = '/settings';
   static const String settingsName = 'settings';
 
-  /// Where the app opens. Becomes [home] once that screen lands.
-  static const String initial = contacts;
+  /// Where the app opens: the welcome screen, ahead of sign in/sign up.
+  static const String initial = welcome;
 
   /// Builds the concrete path for a contact's conversation.
   static String threadPath(String contactId) => '/contacts/$contactId';

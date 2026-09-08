@@ -199,7 +199,7 @@ void main() {
   group('Routes', () {
     test('threadPath builds the path the router expects', () {
       expect(Routes.threadPath('c1'), '/contacts/c1');
-      expect(Routes.initial, Routes.contacts);
+      expect(Routes.initial, Routes.welcome);
       expect(Routes.messageThread, '/contacts/:contactId');
     });
   });

@@ -3,13 +3,13 @@
 The mobile build of CareConnect for **SWEN 661 Team 2 (The Acuity Health Group)**,
 targeting care recipients who are deaf or hard of hearing.
 
-> **Scope of this branch.** This branch delivers the three screens assigned to
-> **Victor Lee** in the Week 4 split — **Contacts**, **Messaging** (reached from
-> Contacts) and **Accessibility Settings** — plus the shared application shell
-> they need in order to run and be tested on their own. Justin's screens (Login,
-> Signup, Home, My Day) and Rehman's screens (Appointments, Medicines,
-> Memories) land on their own branches; their navigation destinations already
-> exist here as clearly-labelled placeholders. See [Adding a screen](#adding-a-screen).
+> **Scope of this branch.** This branch carries the three screens assigned to
+> **Victor Lee** — **Contacts**, **Messaging** (reached from Contacts) and
+> **Accessibility Settings** — the shared application shell they run on, and
+> Justin Zhang's screens (**Welcome, Sign In, Sign Up, Home, My Day**), merged
+> in from `WK4-Justin`. Rehman Uddin's screens (Appointments, Medicines,
+> Memories) land on his own branch; their navigation destinations already exist
+> here as clearly-labelled placeholders. See [Adding a screen](#adding-a-screen).
 >
 > Every screen here is built to match the **Week 3 design prototype**. Where the
 > prototype and the earlier React web client disagreed, the prototype won.
@@ -47,14 +47,20 @@ screen will not let you switch the visible alert banner off.
 
 | Screen | Route | What it does |
 |:-------|:------|:-------------|
+| **Welcome** | `/welcome` | The cold-start splash: the brand, the hearing-accessibility pitch, and the two ways in. Doesn't count toward the 7–10 screen requirement — it has no functionality beyond the two buttons below it. |
+| **Sign In** | `/sign-in` | Email/password sign in. Continues to the Home dashboard. |
+| **Sign Up** | `/sign-up` | Account creation: name, email, password with confirmation. Continues to Home. |
+| **Home / Dashboard** | `/home` | The day's summary: an upcoming-appointment banner, today's task progress, the next thing to do, and a simulated incoming video call with answer/decline and in-call controls (mute, pause, captions), all reachable without sound. |
+| **My Day** | `/my-day` | Every task for the day as a checklist — medication, check-ins, appointments — each one tappable to mark done, with a shared progress bar against Home. |
 | **Contacts** | `/contacts` | One list, Joyce first with a **Primary** pill, then the GP, the two children and the medical helpline. Each row shows the lettered avatar, the relationship, a preview of the latest message, and a count of messages **waiting** — a number *and* the word, never a bare dot. The banner at the top explains Notify. Tapping a row opens the conversation. |
 | **Messaging** | `/contacts/:contactId` | The conversation, opened from a card. Day separators, delivery state written out ("Read"), transcripts for voicemail, caption status for video, in-thread CareConnect alerts, a validated composer, and the **Notify** action. Warns, with a link into Settings, when captions are off and the thread contains a video. On a tablet it also offers the prototype's "Call *name* now" — a captioned video call, never audio-only. |
 | **Accessibility Settings** | `/settings` | A live WCAG conformance badge, then Visual Alerts, Captions (size, colour, live preview), Audio (volume, L/R balance), Vibration (three named rhythms, tap to feel), and Account. Persisted with `SharedPreferences`. |
 
-Placeholders exist at `/home`, `/my-day`, `/appointments`, `/medicines` and
-`/memories` so the prototype's six-destination navigation works end to end. They
-are **not** functional screens and do not count toward the assignment's 7–10
-screen requirement.
+That's **7 functional screens** (Welcome is deliberately not counted), against
+the assignment's 7–10. Placeholders exist at `/appointments`, `/medicines` and
+`/memories`, Rehman's screens, so the prototype's six-destination navigation
+works end to end. They are **not** functional screens and do not count toward
+the requirement either.
 
 ### Screenshots
 
@@ -67,6 +73,11 @@ Captured from a live iOS Simulator run (`flutter/docs/screenshots/`):
 | [Messaging — video captions (phone)](docs/screenshots/03-messaging-video-captions-phone.png) | Maria's thread, showing the "Captions available" badge on a video message |
 | [Accessibility Settings (phone)](docs/screenshots/04-accessibility-settings-phone.png) | The WCAG conformance badge, Visual Alerts and Captions sections |
 | [Contacts (tablet)](docs/screenshots/05-contacts-tablet.png) | The same screen at the tablet breakpoint: a persistent sidebar and a two-column grid |
+| [Welcome (phone)](docs/screenshots/06-welcome-phone.png) | The cold-start screen: brand, accessibility pitch, and the two ways in |
+| [Sign In (phone)](docs/screenshots/07-sign-in-phone.png) | Email/password sign in |
+| [Sign Up (phone)](docs/screenshots/08-sign-up-phone.png) | Account creation with password confirmation |
+| [Home / Dashboard (phone)](docs/screenshots/09-home-dashboard-phone.png) | The day's summary: upcoming appointment, task progress, next thing to do |
+| [My Day (phone)](docs/screenshots/10-my-day-phone.png) | The full daily checklist, each task tappable to mark done |
 
 Screens are laid out for **phone and tablet**: contact rows stack in one column
 below 720dp and go two across above it; the phone's bottom bar becomes the
@@ -104,22 +115,27 @@ lib/
 │   ├── theme/                   # Assignment 3 palette and typography scale
 │   └── utils/                   # pure formatters, validators, haptic patterns
 ├── models/                      # Contact, Message, AccessibilitySettings,
-│                                #   VibrationPattern
+│                                #   VibrationPattern, DailyTask
 ├── data/                        # repository interfaces + prototype fixtures
 ├── state/                       # ChangeNotifier controllers (no widget imports)
 ├── widgets/                     # shared UI: scaffold, banners, badges
 └── screens/
+    ├── splash/                  # Welcome
+    ├── auth/                    # Sign In, Sign Up
+    ├── home/                    # Home / Dashboard
+    ├── my_day/                  # My Day
     ├── contacts/
     ├── messaging/
     ├── settings/
-    └── pending/                 # teammates' destinations, clearly labelled
+    └── pending/                 # Rehman's destinations, clearly labelled
 ```
 
-**State management — Provider.** Three `ChangeNotifier` controllers
-(`ContactsController`, `MessagesController`, `SettingsController`) are supplied
-by a `MultiProvider` in `app.dart`. None of them import a Flutter widget, so
-every one is unit tested directly. `setState` is used only for genuinely local
-state — the composer's draft text and the Notify flash trigger.
+**State management — Provider.** Four `ChangeNotifier` controllers
+(`ContactsController`, `MessagesController`, `SettingsController`,
+`DailyTasksController`) are supplied by a `MultiProvider` in `app.dart`. None
+of them import a Flutter widget, so every one is unit tested directly.
+`setState` is used only for genuinely local state — the composer's draft text,
+the Notify flash trigger, and the Home screen's simulated call.
 
 Shared state earns its keep in two visible places: opening a conversation clears
 that contact's badge back on the Contacts screen without passing anything
@@ -138,9 +154,11 @@ shell, so a tablet keeps its sidebar there, but it is *pushed* rather than
 switched to, and the phone's bottom bar hides while it is open — it is a screen
 you come back from, not a seventh tab.
 
-The conversation screen sits outside the shell, on the root navigator, so it
-covers the navigation the way a drill-down should and keeps a normal push
-animation and back-swipe. The contact is identified by the `contactId` path
+Welcome, Sign In and Sign Up sit outside the shell too, ahead of it: `Routes.initial`
+opens on Welcome, so a cold start walks through the onboarding flow before ever
+reaching the tab bar. The conversation screen also sits outside the shell, on
+the root navigator, so it covers the navigation the way a drill-down should and
+keeps a normal push animation and back-swipe. The contact is identified by the `contactId` path
 parameter, so the screen works from a tap and from a cold deep link alike. An id
 that no longer exists lands on a recoverable "contact is not in your list"
 screen; an unknown path lands on the router's error screen. Screens that can be
@@ -271,7 +289,8 @@ open coverage/html/index.html        # or: start coverage\html\index.html
 ```
 
 The report is written to `flutter/coverage/html/index.html`. Attach the summary
-screenshot to the submission; the assignment floor is **60 % line coverage**.
+screenshot to the submission; the assignment floor is **60 % line coverage** —
+this branch currently sits at **98.9 %** across 217 tests.
 
 If `genhtml` is not installed (it ships with `lcov`), the Dart alternative is:
 
@@ -309,6 +328,8 @@ the exact commands to reproduce it.
   waiting-messages rule, Notify records, send validation
 - `SettingsController` and all three repositories — persistence, no-op writes,
   clamping on write, and a `SharedPreferences` round-trip
+- `DailyTasksController` — starting totals, toggling a task on and off,
+  progress as a fraction, and the appointment notification's visibility
 
 **Widget tests** (`test/widgets/`)
 
@@ -338,6 +359,14 @@ the exact commands to reproduce it.
   one frame into the switch), the outgoing page is gone on the next frame rather
   than sliding out, and the bar hides on Settings while the tablet sidebar
   stays
+- Welcome renders the brand and accessibility pitch and gets to Sign Up from
+  "Get started"; Sign In and Sign Up render their forms and Sign In continues
+  to Home
+- Home renders the dashboard, and a simulated incoming call can be declined or
+  answered, with in-call controls (mute, pause, captions) and a route back to
+  Home when the call ends
+- My Day shows the daily task count and title, and tapping a task flips its
+  done state and the shared progress count
 
 ---
 
@@ -356,9 +385,10 @@ the exact commands to reproduce it.
 
 ## Known issues and limitations
 
-- **Data is in memory.** `MockContactRepository` and `MockMessageRepository` seed
-  from the prototype's fixtures, and messages sent during a session are kept only
-  for the life of the process. Only the accessibility settings persist to disk.
+- **Data is in memory.** `MockContactRepository`, `MockMessageRepository` and
+  `InMemoryDailyTasksRepository` seed from the prototype's fixtures, and
+  messages sent or tasks toggled during a session are kept only for the life
+  of the process. Only the accessibility settings persist to disk.
 - **Video, audio and the captioned call are represented, not implemented.**
   Requesting a call opens a written confirmation; there is no media pipeline
   behind it yet, and the alert-volume and balance settings are stored and
@@ -367,9 +397,10 @@ the exact commands to reproduce it.
   named impacts rather than an arbitrary waveform, so each rhythm is played as a
   sequence of impacts and pauses. That is enough to tell them apart by feel; a
   true waveform needs a platform channel.
-- **Sign out is not wired up.** It belongs with the authentication screens on
-  another branch, so the control is present and says so rather than failing
-  silently.
+- **Authentication is not wired to a backend.** Sign In and Sign Up validate
+  their forms and route on to Home, but neither checks credentials against a
+  real account store yet. Sign out in Settings is present and says plainly
+  that it is not wired up, rather than failing silently.
 - Assignment 3 mentions requesting an ASL interpreter. The Week 3 prototype has
   no surface for it, so it is not built here.
 - No font asset is bundled; the app uses each platform's system sans-serif, which
@@ -382,9 +413,9 @@ the exact commands to reproduce it.
 
 | Member | Screens |
 |:-------|:--------|
-| Justin Zhang | Login, Signup, Home, My Day |
-| Rehman Uddin | Appointments, Medicines, Memories |
-| **Victor Lee** | **Contacts, Messaging, Accessibility Settings** — plus the shared shell on this branch: theme, router, navigation, models, repositories, Provider controllers, and the shared widgets |
+| Justin Zhang | Welcome, Sign In, Sign Up, Home, My Day — merged into this branch from `WK4-Justin` |
+| Rehman Uddin | Appointments, Medicines, Memories — pending, still on his own branch |
+| **Victor Lee** | **Contacts, Messaging, Accessibility Settings** — plus the shared shell: theme, router, navigation, models, repositories, Provider controllers, and the shared widgets; merged in Justin's screens, fixed a tablet-layout overflow bug in `StatusBadge` uncovered while screenshotting, and added the missing `DailyTasksController` unit test |
 
 ---
 
@@ -402,7 +433,18 @@ Claude (Opus) was used on this branch to:
   listed — `NaN` slider values, whitespace-only messages, corrupt preference
   values, calendar-day vs elapsed-hours date grouping, and an attempt to disable
   the visual alert banner by editing stored preferences;
-- write this README.
+- write this README;
+- merge Justin's Welcome/Sign In/Sign Up/Home/My Day screens from `WK4-Justin`
+  into this branch's shell — wiring the new routes, the `DailyTasksController`
+  provider, and the test harness, then fixing the small breakage that surfaced
+  (a stale `Routes.initial` assertion, two `withOpacity` deprecation warnings,
+  an unused import);
+- run an OSV-Scanner dependency scan and a manual secrets/network-call review
+  (`docs/security-scan.md`);
+- capture the simulator screenshots in `docs/screenshots/`, which is how the
+  tablet `RenderFlex` overflow in `StatusBadge` was actually found — it only
+  showed up once the Contacts screen was seen rendered live, not from
+  `flutter analyze` or the test suite.
 
 Rejected AI suggestions: telephone call-to-action buttons on contact cards, and
 transient snack-bar confirmations. Both were replaced — the first with text and

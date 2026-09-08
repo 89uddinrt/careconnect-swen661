@@ -1,6 +1,7 @@
 import 'package:careconnect_mobile/app.dart';
 import 'package:careconnect_mobile/core/routing/routes.dart';
 import 'package:careconnect_mobile/data/contact_repository.dart';
+import 'package:careconnect_mobile/data/daily_tasks_repository.dart';
 import 'package:careconnect_mobile/data/message_repository.dart';
 import 'package:careconnect_mobile/data/settings_repository.dart';
 import 'package:careconnect_mobile/models/accessibility_settings.dart';
@@ -54,6 +55,7 @@ Future<SettingsRepository> pumpApp(
   SettingsRepository? settingsRepository,
   ContactRepository? contactRepository,
   MessageRepository? messageRepository,
+  DailyTasksRepository? dailyTasksRepository,
 }) async {
   final SettingsRepository repository = settingsRepository ??
       InMemorySettingsRepository(settings ?? AccessibilitySettings.defaults);
@@ -65,6 +67,8 @@ Future<SettingsRepository> pumpApp(
       messageRepository: messageRepository ??
           MockMessageRepository(now: kTestNow, seed: messages),
       settingsRepository: repository,
+      dailyTasksRepository:
+          dailyTasksRepository ?? InMemoryDailyTasksRepository(),
       initialLocation: initialLocation,
     ),
   );
