@@ -38,6 +38,7 @@ A responsive, accessible medical companion application for care recipients and t
 - [Testing](#testing)
 - [Git workflow](#git-workflow)
 - [Deployment](#deployment)
+- [Flutter mobile client](#flutter-mobile-client)
 - [Roadmap](#roadmap)
 - [Authors & credits](#authors--credits)
 - [License](#license)
@@ -105,7 +106,7 @@ Instructor-assigned hearing-impairment constraints, mapped to WCAG 2.2:
 | Target | Stack | Folder | Status |
 |:-------|:------|:-------|:-------|
 | Web — responsive application / PWA | React 18 + Vite + TypeScript + Tailwind | repository root (moving to `web/`) | Base app in place |
-| Mobile — Android and iOS | Flutter + Dart | `flutter/` | Planned |
+| Mobile — Android and iOS | Flutter + Dart | `flutter/` | In progress — see [Flutter mobile client](#flutter-mobile-client) |
 | Mobile — Android and iOS | React Native + Expo | `mobile/` | Planned |
 | Desktop — Windows | Electron | `desktop/` | Planned |
 
@@ -386,16 +387,14 @@ Anything prefixed `VITE_` is compiled into the browser bundle — never put a se
 
 ### Flutter — Android & iOS
 
-> Planned. These are the commands the team will use once `flutter/` is scaffolded.
-
 ```bash
 cd flutter
 flutter pub get
-flutter devices          # confirm an emulator or device is attached
-flutter run
+./run.sh                 # boots an iPhone simulator + Android emulator and runs on both
+# or: ./dev.sh           # interactively pick one device
 ```
 
-Release artifacts: `flutter build apk --release` or `flutter build ios --release`.
+Release artifacts: `flutter build apk --release` or `flutter build ios --release --no-codesign`. See [Flutter mobile client](#flutter-mobile-client) for screens, architecture, and tests.
 
 ### React Native — Expo
 
@@ -607,6 +606,58 @@ npm run build       # outputs to /dist
 Deploy `/dist` to Netlify or Vercel. Configure the assistant's Supabase Edge Function and set `ANTHROPIC_API_KEY` in the host's environment settings — never client-side.
 
 Windows desktop artifacts are produced by Electron. Members without a native Windows install should build through GitHub Actions on a `windows-latest` runner and treat CI as the authoritative build environment.
+
+---
+
+## Flutter mobile client
+
+The mobile build of CareConnect for care recipients who are deaf or hard of hearing lives in [`flutter/`](flutter/), built against the Week 3 design prototype. It carries Victor Lee's three screens (Contacts, Messaging, Accessibility Settings) and the shared app shell, merged with Justin Zhang's Welcome/Sign In/Sign Up/Home/My Day screens. Rehman Uddin's screens (Appointments, Medicines, Memories) exist as clearly-labeled placeholders so the six-destination navigation works end to end.
+
+### Screens
+
+| Screen | Route | Summary |
+|:-------|:------|:--------|
+| Welcome | `/welcome` | Cold-start splash with the accessibility pitch and the two ways in (not counted as a functional screen). |
+| Sign In / Sign Up | `/sign-in`, `/sign-up` | Mock auth forms, continuing to Home. |
+| Home / Dashboard | `/home` | Day summary, next task, and a simulated video call reachable without sound. |
+| My Day | `/my-day` | Full daily checklist sharing a progress bar with Home. |
+| Contacts | `/contacts` | Roster with waiting-message counts shown as a number and a word, never a bare dot. |
+| Messaging | `/contacts/:contactId` | Conversation view with transcripts for voicemail, caption status for video, and **Notify** in place of a phone call. |
+| Accessibility Settings | `/settings` | Visual Alerts (cannot be disabled), Captions, Audio, Vibration, persisted with `SharedPreferences`. |
+
+That's 7 functional screens against the assignment's 7–10 target.
+
+### How it meets the assigned constraints
+
+- **Captions** — a badge on video messages states caption availability; size/color/on-off live in Settings with a live preview.
+- **Text alternative for audio** — voicemail renders as a transcript instead of a play button.
+- **No sound-only alerts** — the visual-alert-banner setting has no way to be turned off, even by editing stored preferences.
+- **Clear visual notifications** — `AlertBanner` and a non-strobing visual flash always pair an icon with a text heading and body.
+- **User control of audio** — a volume slider (zero is valid) and an L/R balance control for a single aided ear.
+
+**Notify**, the replacement for a phone call: one non-strobing flash reading "Alert sent to *name*," an optional haptic, and a line written into the conversation confirming the alert went — so a deaf user has a record, not just a flash that already happened.
+
+### Architecture
+
+Provider-based state (four `ChangeNotifier` controllers with no widget imports, so each is unit-tested directly), `go_router` with a persistent shell around the six top-level destinations, and `SharedPreferences` for settings, one key per preference, with safe defaults on a corrupt store.
+
+### Tests
+
+```bash
+cd flutter
+flutter analyze
+flutter test --coverage
+```
+
+217 tests at 98.9% line coverage against a 60% floor. An `osv-scanner` dependency scan plus a manual secrets/network review found no issues (`flutter/docs/security-scan.md`).
+
+### Known limitations
+
+Data lives in memory except for accessibility settings; video, audio, and the captioned call are represented in the UI but not backed by a real media pipeline; vibration patterns are approximated with named haptic impacts; sign in/up validate their forms but don't check a real account store yet.
+
+### AI usage
+
+The Week 3 design doc and wireframe screenshots were uploaded to Claude to help design the tablet and mobile versions of these screens, with a human in the loop reviewing and refining the output to stay aligned with the designers' intent.
 
 ---
 
