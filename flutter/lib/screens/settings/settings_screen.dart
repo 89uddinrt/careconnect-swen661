@@ -7,6 +7,7 @@ import '../../core/utils/haptics.dart';
 import '../../models/accessibility_settings.dart';
 import '../../models/vibration_pattern.dart';
 import '../../state/settings_controller.dart';
+import '../../widgets/alert_banner.dart';
 import '../../widgets/app_back_button.dart';
 import '../../widgets/app_scaffold.dart';
 import '../../widgets/responsive.dart';
@@ -233,58 +234,15 @@ class _ConformanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool ok = settings.meetsHearingConstraints;
-    final Color fill = ok ? AppColors.successFill : AppColors.warningFill;
-    final Color ink = ok ? AppColors.successText : AppColors.warningText;
 
-    return Semantics(
-      container: true,
-      liveRegion: true,
-      label: ok
-          ? 'WCAG 2.2 compliant. ${settings.conformanceMessage}'
-          : 'Attention. ${settings.conformanceMessage}',
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppTheme.gutter),
-        decoration: BoxDecoration(
-          color: fill,
-          borderRadius: BorderRadius.circular(AppTheme.radius),
-          border: Border.all(color: ink, width: 1.5),
-        ),
-        child: ExcludeSemantics(
-          child: Row(
-            children: <Widget>[
-              Icon(
-                ok ? Icons.accessible_forward : Icons.warning_amber_rounded,
-                size: 28,
-                color: ink,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      ok ? 'WCAG 2.2 Compliant' : 'Check your captions',
-                      style: TextStyle(
-                        fontSize: 17,
-                        height: 1.3,
-                        fontWeight: FontWeight.bold,
-                        color: ink,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      settings.conformanceMessage,
-                      style: TextStyle(fontSize: 15, height: 1.4, color: ink),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    // Live rather than decorative: switching captions off flips it, so the
+    // screen tells the truth about the configuration instead of always
+    // claiming to be compliant.
+    return AlertBanner(
+      tone: ok ? AlertTone.success : AlertTone.warning,
+      icon: ok ? Icons.accessible_forward : Icons.warning_amber_rounded,
+      title: ok ? 'WCAG 2.2 Compliant' : 'Check your captions',
+      message: settings.conformanceMessage,
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:careconnect_mobile/core/routing/routes.dart';
 import 'package:careconnect_mobile/screens/contacts/widgets/contact_card.dart';
 import 'package:careconnect_mobile/screens/messaging/widgets/message_composer.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/harness.dart';
@@ -150,7 +150,12 @@ void main() {
       usePhoneSurface(tester);
       await pumpApp(tester, initialLocation: Routes.threadPath('c3'));
 
-      expect(find.text('Maria'), findsOneWidget);
+      // "Maria" also labels her own message bubbles below, so this scopes
+      // the check to the app bar header.
+      expect(
+        find.descendant(of: find.byType(AppBar), matching: find.text('Maria')),
+        findsOneWidget,
+      );
       expect(find.byType(MessageComposer), findsOneWidget);
     });
 

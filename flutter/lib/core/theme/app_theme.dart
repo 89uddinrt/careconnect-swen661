@@ -36,17 +36,10 @@ abstract final class AppTheme {
   static const double radius = 14.0;
 
   /// Builds the light theme.
-  ///
-  /// [highContrast] is kept as a hook for the accessibility work in a later
-  /// week: the Week 3 prototype's Settings screen does not offer the control,
-  /// so nothing switches it on yet.
-  static ThemeData light({bool highContrast = false}) {
-    final Color onSurface =
-        highContrast ? AppColors.highContrastText : AppColors.primaryDark;
-    final Color muted =
-        highContrast ? AppColors.highContrastText : AppColors.secondaryDark;
-    final Color surfaceContainer =
-        highContrast ? AppColors.highContrastFill : AppColors.secondaryLight;
+  static ThemeData light() {
+    const Color onSurface = AppColors.primaryDark;
+    const Color muted = AppColors.secondaryDark;
+    const Color surfaceContainer = AppColors.secondaryLight;
 
     final ColorScheme scheme = ColorScheme.fromSeed(
       seedColor: AppColors.primaryDark,
@@ -61,7 +54,7 @@ abstract final class AppTheme {
       surfaceContainerHighest: surfaceContainer,
       error: AppColors.errorText,
       onError: AppColors.primaryLight,
-      outline: highContrast ? AppColors.highContrastText : AppColors.border,
+      outline: AppColors.border,
     );
 
     return ThemeData(

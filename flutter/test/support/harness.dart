@@ -52,20 +52,73 @@ Future<SettingsRepository> pumpApp(
   List<Message>? messages,
   AccessibilitySettings? settings,
   SettingsRepository? settingsRepository,
+  ContactRepository? contactRepository,
+  MessageRepository? messageRepository,
 }) async {
   final SettingsRepository repository = settingsRepository ??
       InMemorySettingsRepository(settings ?? AccessibilitySettings.defaults);
 
   await tester.pumpWidget(
     CareConnectApp(
-      contactRepository: MockContactRepository(seed: contacts),
-      messageRepository: MockMessageRepository(now: kTestNow, seed: messages),
+      contactRepository:
+          contactRepository ?? MockContactRepository(seed: contacts),
+      messageRepository: messageRepository ??
+          MockMessageRepository(now: kTestNow, seed: messages),
       settingsRepository: repository,
       initialLocation: initialLocation,
     ),
   );
   await tester.pumpAndSettle();
   return repository;
+}
+
+/// A contact repository whose first [failures] loads fail, for exercising the
+/// error path — and the recovery from it — through the real screen rather than
+/// only through the controller.
+class FlakyContactRepository implements ContactRepository {
+  FlakyContactRepository({this.failures = 1, List<Contact>? seed})
+      : _inner = MockContactRepository(seed: seed);
+
+  final int failures;
+  final MockContactRepository _inner;
+  int _attempts = 0;
+
+  @override
+  Future<List<Contact>> fetchContacts() async {
+    _attempts++;
+    if (_attempts <= failures) throw StateError('offline');
+    return _inner.fetchContacts();
+  }
+}
+
+/// A message repository that fails to load a thread but can still be recovered
+/// from, so a retry can be tested end to end.
+class FlakyMessageRepository implements MessageRepository {
+  FlakyMessageRepository({this.failures = 1, List<Message>? seed})
+      : _inner = MockMessageRepository(now: kTestNow, seed: seed);
+
+  /// How many loads fail before the repository starts working.
+  final int failures;
+  final MockMessageRepository _inner;
+  int _attempts = 0;
+
+  @override
+  Future<List<Message>> fetchThread(String contactId) async {
+    _attempts++;
+    if (_attempts <= failures) throw StateError('offline');
+    return _inner.fetchThread(contactId);
+  }
+
+  @override
+  Future<Message> send({required String contactId, required String body}) =>
+      _inner.send(contactId: contactId, body: body);
+
+  @override
+  Future<Message> recordAlert({
+    required String contactId,
+    required String body,
+  }) =>
+      _inner.recordAlert(contactId: contactId, body: body);
 }
 
 /// A minimal contact for tests that do not care about the seeded fixtures.

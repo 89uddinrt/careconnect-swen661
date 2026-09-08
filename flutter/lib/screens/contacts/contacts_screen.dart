@@ -52,12 +52,83 @@ class _ContactsScreenState extends State<ContactsScreen> {
     );
   }
 
+  /// The body under the tip banner: spinner, error, empty state or the list.
+  ///
+  /// These are mutually exclusive on purpose. An earlier version showed the
+  /// failure banner *and* "No contacts yet" together, which told the user two
+  /// contradictory things — that something went wrong, and that they simply
+  /// have no contacts.
+  Widget _buildList(
+    ContactsController contacts,
+    MessagesController messages,
+    bool isTablet,
+  ) {
+    if (contacts.isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 48),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (contacts.error != null) {
+      return AlertBanner(
+        tone: AlertTone.error,
+        title: 'Contacts could not be loaded',
+        message: 'Your contacts are saved on this phone, so nothing has been '
+            'lost. Try again in a moment.',
+        action: FilledButton.icon(
+          onPressed: _bootstrap,
+          icon: const Icon(Icons.refresh, size: 20),
+          label: const Text('Try again'),
+        ),
+      );
+    }
+
+    final List<Contact> visible = contacts.allContacts;
+    if (visible.isEmpty) {
+      return const EmptyState(
+        icon: Icons.people_outline,
+        title: 'No contacts yet',
+        message: 'Your care team will appear here once someone is added to '
+            'your circle.',
+      );
+    }
+
+    // On a phone the rows stack; from the tablet breakpoint up they sit two
+    // across, which keeps a card from stretching the full width of a wide
+    // screen.
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        const double spacing = 12;
+        final double cardWidth = isTablet
+            ? (constraints.maxWidth - spacing) / 2
+            : constraints.maxWidth;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: visible
+              .map(
+                (Contact contact) => SizedBox(
+                  width: cardWidth,
+                  child: ContactCard(
+                    contact: contact,
+                    preview: messages.previewFor(contact.id),
+                    unreadCount: messages.unreadCount(contact.id),
+                    onOpenThread: () => _openThread(contact),
+                  ),
+                ),
+              )
+              .toList(),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final ContactsController contacts = context.watch<ContactsController>();
     final MessagesController messages = context.watch<MessagesController>();
     final bool isTablet = Breakpoints.isTablet(context);
-    final List<Contact> visible = contacts.allContacts;
 
     return AppScaffold(
       title: 'Contacts',
@@ -71,60 +142,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             children: <Widget>[
               const _NotifyTip(),
               const SizedBox(height: 16),
-              if (contacts.error != null) ...<Widget>[
-                AlertBanner(
-                  tone: AlertTone.error,
-                  title: 'Contacts could not be loaded',
-                  message: 'Your contacts are saved on this phone, so nothing '
-                      'has been lost. Pull down to try again.',
-                  action: FilledButton(
-                    onPressed: _bootstrap,
-                    child: const Text('Try again'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-              if (contacts.isLoading)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 48),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (visible.isEmpty)
-                const EmptyState(
-                  icon: Icons.people_outline,
-                  title: 'No contacts yet',
-                  message: 'Your care team will appear here once someone is '
-                      'added to your circle.',
-                )
-              else
-                // On a phone the rows stack; from the tablet breakpoint up they
-                // sit two across, which keeps a card from stretching the full
-                // width of a wide screen.
-                LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    const double spacing = 12;
-                    final double cardWidth = isTablet
-                        ? (constraints.maxWidth - spacing) / 2
-                        : constraints.maxWidth;
-                    return Wrap(
-                      spacing: spacing,
-                      runSpacing: spacing,
-                      children: visible
-                          .map(
-                            (Contact contact) => SizedBox(
-                              width: cardWidth,
-                              child: ContactCard(
-                                contact: contact,
-                                preview: messages.previewFor(contact.id),
-                                unreadCount: messages.unreadCount(contact.id),
-                                onOpenThread: () => _openThread(contact),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    );
-                  },
-                ),
+              _buildList(contacts, messages, isTablet),
               const SizedBox(height: 24),
             ],
           ),

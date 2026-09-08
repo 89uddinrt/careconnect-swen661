@@ -15,6 +15,3 @@ coverage/html/
 .idea/
 *.iml
 .vscode/
-
-# Platform folders are generated locally, see README
-# (uncomment if your team decides not to commit them)

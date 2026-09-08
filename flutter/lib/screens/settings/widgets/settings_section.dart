@@ -53,7 +53,16 @@ class SettingsSection extends StatelessWidget {
               border: Border.all(color: AppColors.border),
             ),
             clipBehavior: Clip.antiAlias,
-            child: Column(children: children),
+            // The tiles inside (SwitchListTile, ListTile) paint their own
+            // background and ink splashes on the nearest Material ancestor.
+            // Without one here, they would paint on whatever Material sits
+            // further up the tree, underneath this Container's own
+            // background — invisible. `transparency` supplies that ancestor
+            // without adding a second painted surface of its own.
+            child: Material(
+              type: MaterialType.transparency,
+              child: Column(children: children),
+            ),
           ),
         ],
       ),

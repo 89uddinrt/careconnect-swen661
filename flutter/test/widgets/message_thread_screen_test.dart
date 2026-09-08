@@ -15,7 +15,13 @@ void main() {
       usePhoneSurface(tester);
       await pumpApp(tester, initialLocation: Routes.threadPath('c1'));
 
-      expect(find.text('Joyce'), findsOneWidget);
+      // "Joyce" also labels her own message bubbles below (the sender name
+      // on each incoming bubble, so delivery direction is never colour- or
+      // position-only), so this scopes the check to the app bar header.
+      expect(
+        find.descendant(of: find.byType(AppBar), matching: find.text('Joyce')),
+        findsOneWidget,
+      );
       expect(find.text('Caregiver · Daughter'), findsOneWidget);
       expect(find.text('JO'), findsOneWidget);
     });
@@ -121,6 +127,64 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('People who care for you'), findsOneWidget);
+    });
+  });
+
+  group('When a conversation cannot be loaded', () {
+    testWidgets('says so rather than claiming the conversation is empty', (
+      WidgetTester tester,
+    ) async {
+      usePhoneSurface(tester);
+      await pumpApp(
+        tester,
+        initialLocation: Routes.threadPath('c1'),
+        messageRepository: FlakyMessageRepository(failures: 99),
+      );
+
+      expect(
+        find.text('This conversation could not be loaded'),
+        findsOneWidget,
+      );
+      // "No messages yet" would tell a deaf user that Joyce never wrote, which
+      // is a different and much worse thing than a failed load.
+      expect(find.text('No messages yet'), findsNothing);
+      expect(find.byType(MessageBubble), findsNothing);
+    });
+
+    testWidgets('still lets the user send a silent alert', (
+      WidgetTester tester,
+    ) async {
+      usePhoneSurface(tester);
+      await pumpApp(
+        tester,
+        initialLocation: Routes.threadPath('c1'),
+        messageRepository: FlakyMessageRepository(failures: 99),
+      );
+
+      // Reaching someone does not depend on the history having loaded.
+      expect(find.byType(NotifyButton), findsOneWidget);
+    });
+
+    testWidgets('recovers when the retry succeeds', (
+      WidgetTester tester,
+    ) async {
+      usePhoneSurface(tester);
+      await pumpApp(
+        tester,
+        initialLocation: Routes.threadPath('c1'),
+        messageRepository: FlakyMessageRepository(failures: 1),
+      );
+
+      expect(find.byType(MessageBubble), findsNothing);
+
+      await tester.tap(find.text('Try again'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('This conversation could not be loaded'),
+        findsNothing,
+      );
+      expect(find.byType(MessageBubble), findsNWidgets(2));
     });
   });
 

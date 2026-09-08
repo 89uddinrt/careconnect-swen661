@@ -9,6 +9,9 @@ import '../core/theme/app_theme.dart';
 /// plus a shape" and that information is never carried by colour alone. Making
 /// both [icon] and [label] required means a caller cannot accidentally ship a
 /// colour-only indicator.
+///
+/// [fill] and [foreground] take an accent pair from [AppColors] when a badge
+/// needs one; both defaults are the calm pairing used by the Primary pill.
 class StatusBadge extends StatelessWidget {
   const StatusBadge({
     super.key,
@@ -17,30 +20,6 @@ class StatusBadge extends StatelessWidget {
     this.fill = AppColors.secondaryLight,
     this.foreground = AppColors.primaryDark,
   });
-
-  /// A badge in the warning accent — action needed.
-  const StatusBadge.warning({
-    super.key,
-    required this.icon,
-    required this.label,
-  })  : fill = AppColors.warningFill,
-        foreground = AppColors.warningText;
-
-  /// A badge in the error accent — something is wrong or urgent.
-  const StatusBadge.alert({
-    super.key,
-    required this.icon,
-    required this.label,
-  })  : fill = AppColors.errorFill,
-        foreground = AppColors.errorText;
-
-  /// A badge in the success accent — everything is in order.
-  const StatusBadge.success({
-    super.key,
-    required this.icon,
-    required this.label,
-  })  : fill = AppColors.successFill,
-        foreground = AppColors.successText;
 
   final IconData icon;
   final String label;
@@ -64,13 +43,17 @@ class StatusBadge extends StatelessWidget {
           children: <Widget>[
             Icon(icon, size: 16, color: foreground),
             const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                height: 1.3,
-                fontWeight: FontWeight.w600,
-                color: foreground,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.3,
+                  fontWeight: FontWeight.w600,
+                  color: foreground,
+                ),
               ),
             ),
           ],

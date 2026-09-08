@@ -124,6 +124,46 @@ void main() {
     });
   });
 
+  group('ContactsScreen when loading fails', () {
+    testWidgets('explains the failure instead of showing an empty list', (
+      WidgetTester tester,
+    ) async {
+      usePhoneSurface(tester);
+      await pumpApp(
+        tester,
+        contactRepository: FlakyContactRepository(failures: 99),
+      );
+
+      expect(find.text('Contacts could not be loaded'), findsOneWidget);
+      expect(
+        find.textContaining('nothing has been lost'),
+        findsOneWidget,
+      );
+      expect(find.byType(ContactCard), findsNothing);
+      // Not the empty state: an empty address book and an unreachable one are
+      // different problems and must not read the same.
+      expect(find.text('No contacts yet'), findsNothing);
+    });
+
+    testWidgets('recovers when the retry button succeeds', (
+      WidgetTester tester,
+    ) async {
+      usePhoneSurface(tester);
+      await pumpApp(
+        tester,
+        contactRepository: FlakyContactRepository(failures: 1),
+      );
+
+      expect(find.byType(ContactCard), findsNothing);
+
+      await tester.tap(find.text('Try again'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Contacts could not be loaded'), findsNothing);
+      expect(find.byType(ContactCard), findsNWidgets(5));
+    });
+  });
+
   group('ContactsScreen navigation affordances', () {
     testWidgets('carries the six destinations the prototype shows', (
       WidgetTester tester,

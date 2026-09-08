@@ -231,13 +231,17 @@ class _SystemAlert extends StatelessWidget {
                 color: AppColors.warningText,
               ),
               const SizedBox(width: 8),
-              Text(
-                'CareConnect alert · ${Formatters.clock(message.sentAt)}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  height: 1.3,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.warningText,
+              Flexible(
+                child: Text(
+                  'CareConnect alert · ${Formatters.clock(message.sentAt)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    height: 1.3,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.warningText,
+                  ),
                 ),
               ),
             ],

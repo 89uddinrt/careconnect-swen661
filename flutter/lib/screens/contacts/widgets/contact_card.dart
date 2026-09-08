@@ -96,9 +96,15 @@ class ContactCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Row(
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
+                            runSpacing: 2,
                             children: <Widget>[
-                              Flexible(
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 240,
+                                ),
                                 child: Text(
                                   contact.name,
                                   maxLines: 1,
@@ -108,13 +114,11 @@ class ContactCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              if (contact.isPrimary) ...<Widget>[
-                                const SizedBox(width: 8),
+                              if (contact.isPrimary)
                                 const StatusBadge(
                                   icon: Icons.star_outline,
                                   label: 'Primary',
                                 ),
-                              ],
                             ],
                           ),
                           Text(

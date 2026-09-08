@@ -24,6 +24,10 @@ void main() {
       expect(find.text('Captions'), findsOneWidget);
       expect(find.text('Audio'), findsOneWidget);
       expect(find.text('Vibration'), findsOneWidget);
+
+      // Five sections do not all fit in one phone-height screen, so Account
+      // is reached by scrolling — exactly as a real user would.
+      await tester.scrollUntilVisible(find.text('Account'), 500);
       expect(find.text('Account'), findsOneWidget);
     });
 
@@ -246,6 +250,8 @@ void main() {
       usePhoneSurface(tester);
       await pumpApp(tester, initialLocation: Routes.settings);
 
+      // Account sits below the fold; scroll to it as a real user would.
+      await tester.scrollUntilVisible(find.text('Sign out'), 500);
       await tester.tap(find.text('Sign out'));
       await tester.pumpAndSettle();
 

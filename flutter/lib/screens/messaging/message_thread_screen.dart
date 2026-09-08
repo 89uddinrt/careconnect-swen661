@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -95,7 +97,10 @@ class _MessageThreadScreenState extends State<MessageThreadScreen> {
 
     setState(() => _flashTrigger++);
     if (settings.vibrationEnabled) {
-      await HapticFeedback.heavyImpact();
+      // Fire-and-forget: a device with no vibration motor (or a platform
+      // channel that never answers, as under test) must not stop the alert
+      // itself from being sent and recorded.
+      unawaited(HapticFeedback.heavyImpact().catchError((_) {}));
     }
     await messages.sendNotify(widget.contactId, contact.conversationName);
     if (!mounted) return;
@@ -234,22 +239,7 @@ class _MessageThreadScreenState extends State<MessageThreadScreen> {
                   ),
                 ),
               Expanded(
-                child: messages.isLoading(widget.contactId)
-                    ? const Center(child: CircularProgressIndicator())
-                    : thread.isEmpty
-                        ? EmptyState(
-                            icon: Icons.chat_bubble_outline,
-                            title: 'No messages yet',
-                            message: 'Send ${contact.conversationName} the '
-                                'first message. They will see it as text, not '
-                                'as a call.',
-                          )
-                        : _ThreadList(
-                            scrollController: _scrollController,
-                            thread: thread,
-                            contactName: contact.name,
-                            now: widget.now,
-                          ),
+                child: _buildThread(messages, contact, thread),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
@@ -269,6 +259,62 @@ class _MessageThreadScreenState extends State<MessageThreadScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  /// The middle of the screen: spinner, error, empty state or the messages.
+  ///
+  /// A failed load gets its own state rather than falling through to "No
+  /// messages yet". Telling someone their conversation is empty when it is
+  /// really unreachable is worse than saying nothing — they would assume the
+  /// other person never wrote.
+  Widget _buildThread(
+    MessagesController messages,
+    Contact contact,
+    List<Message> thread,
+  ) {
+    if (messages.isLoading(widget.contactId)) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (messages.error != null && thread.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppTheme.gutter),
+          child: ReadableWidth(
+            child: AlertBanner(
+              tone: AlertTone.error,
+              title: 'This conversation could not be loaded',
+              message: 'Nothing has been lost. Your messages with '
+                  '${contact.conversationName} are still there — try again in '
+                  'a moment.',
+              action: FilledButton.icon(
+                onPressed: () => context
+                    .read<MessagesController>()
+                    .loadThread(widget.contactId, force: true),
+                icon: const Icon(Icons.refresh, size: 20),
+                label: const Text('Try again'),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (thread.isEmpty) {
+      return EmptyState(
+        icon: Icons.chat_bubble_outline,
+        title: 'No messages yet',
+        message: 'Send ${contact.conversationName} the first message. They '
+            'will see it as text, not as a call.',
+      );
+    }
+
+    return _ThreadList(
+      scrollController: _scrollController,
+      thread: thread,
+      contactName: contact.name,
+      now: widget.now,
     );
   }
 

@@ -56,6 +56,18 @@ Placeholders exist at `/home`, `/my-day`, `/appointments`, `/medicines` and
 are **not** functional screens and do not count toward the assignment's 7–10
 screen requirement.
 
+### Screenshots
+
+Captured from a live iOS Simulator run (`flutter/docs/screenshots/`):
+
+| | |
+|:--|:--|
+| [Contacts (phone)](docs/screenshots/01-contacts-phone.png) | The roster, Joyce first with the Primary pill, waiting counts as a number and a word |
+| [Messaging (phone)](docs/screenshots/02-messaging-phone.png) | A conversation with day separators, delivery state, and the Notify banner |
+| [Messaging — video captions (phone)](docs/screenshots/03-messaging-video-captions-phone.png) | Maria's thread, showing the "Captions available" badge on a video message |
+| [Accessibility Settings (phone)](docs/screenshots/04-accessibility-settings-phone.png) | The WCAG conformance badge, Visual Alerts and Captions sections |
+| [Contacts (tablet)](docs/screenshots/05-contacts-tablet.png) | The same screen at the tablet breakpoint: a persistent sidebar and a two-column grid |
+
 Screens are laid out for **phone and tablet**: contact rows stack in one column
 below 720dp and go two across above it; the phone's bottom bar becomes the
 prototype's left sidebar on a tablet, with Settings listed in it rather than
@@ -153,30 +165,84 @@ colours were checked against the caption panel (white 8.5:1, yellow 8.1:1).
 
 ## Getting started
 
-### Prerequisites
+These steps assume no prior programming experience. There are two parts:
+installing some free tools (once), then running two commands (every time).
 
-| Tool | Version |
-|:-----|:--------|
-| Flutter SDK | 3.x, stable channel |
-| Dart | bundled with Flutter |
-| Android Studio + SDK | for the Android build |
-| Xcode | for the iOS build (macOS only) |
+### 1. Install the tools
 
-Run `flutter doctor` before reporting a broken build.
+You need three things. If you already have one, skip it.
 
-### Run the app
+1. **Flutter** — follow the install guide for your computer at
+   <https://docs.flutter.dev/get-started/install>. It walks you through
+   downloading Flutter and adding it to your terminal.
+2. **Xcode** (Mac only, needed to show the app on an iPhone) — install it for
+   free from the Mac App Store, then open it once so it can finish setting
+   up.
+3. **Android Studio** (needed to show the app on Android) — download it from
+   <https://developer.android.com/studio> and install it. The first time you
+   open it, a setup wizard appears; click through it with the defaults (it
+   downloads what it needs automatically). Once it's done, click
+   **More Actions > Virtual Device Manager > Create device**, pick any
+   phone, and click Next until you reach Finish. This creates the Android
+   emulator the app will run on.
+
+To check everything installed correctly, open a terminal and run:
+
+```bash
+flutter doctor
+```
+
+If it prints any ✗, it will tell you exactly what to do to fix it.
+
+### 2. Run the app
+
+Open a terminal in this repository and run:
 
 ```bash
 cd flutter
 flutter pub get
-flutter devices          # confirm an emulator or device is attached
-flutter run
+./run.sh
 ```
 
-### Generate the platform folders
+`run.sh` starts an iPhone simulator and an Android emulator for you and opens
+the app on both. The first time can take a few minutes while everything
+boots and builds; it's much faster after that. Once the app windows open,
+you're running CareConnect.
 
-`android/` and `ios/` are **not** committed, so generate them once after
-cloning. Do it through a throwaway project rather than `flutter create .` in
+To stop it, go back to the terminal and press `q`.
+
+<details>
+<summary>Advanced: running on just one platform, or a real device</summary>
+
+```bash
+flutter devices              # list everything currently available
+flutter run -d <device-id>   # run on one specific device
+```
+
+If you'd rather pick from a menu, plain `flutter run` will prompt you as
+long as at least one simulator, emulator, or device is already running.
+
+</details>
+
+### Release builds
+
+`android/` and `ios/` are committed, so these work right after `flutter pub
+get` — no extra setup step:
+
+```bash
+flutter build apk --release          # Android
+flutter build ios --release --no-codesign   # iOS, macOS only
+```
+
+`--no-codesign` skips Apple's device-signing requirement, which needs a
+personal Apple Developer account to set up and isn't needed just to confirm
+the app builds. To install a build on your own iPhone, drop `--no-codesign`
+and see [Apple's code-signing guide](https://developer.apple.com/library/content/documentation/IDEs/Conceptual/AppDistributionGuide/MaintainingCertificates/MaintainingCertificates.html) —
+in short, open `ios/Runner.xcworkspace` in Xcode, sign in with your Apple
+ID, and pick it as the Team under Signing & Capabilities.
+
+If you ever need to regenerate the platform folders (e.g. after a Flutter
+upgrade), do it through a throwaway project rather than `flutter create .` in
 place, which would overwrite `lib/main.dart`:
 
 ```bash
@@ -184,16 +250,6 @@ cd flutter
 flutter create --platforms=android,ios --project-name careconnect_mobile ../_platform_tmp
 cp -r ../_platform_tmp/android ../_platform_tmp/ios .
 rm -rf ../_platform_tmp
-```
-
-`flutter analyze`, `flutter test` and `flutter test --coverage` all work
-**without** this step; only `flutter build` needs it.
-
-### Release builds
-
-```bash
-flutter build apk --release          # Android
-flutter build ios --release          # iOS, macOS only
 ```
 
 ---
@@ -223,6 +279,15 @@ If `genhtml` is not installed (it ships with `lcov`), the Dart alternative is:
 dart pub global activate coverage
 ```
 
+### Security scan
+
+[`osv-scanner`](https://github.com/google/osv-scanner) was run against
+`pubspec.lock` to check every resolved dependency for known vulnerabilities,
+paired with a manual check of `lib/` for hardcoded secrets, plaintext network
+calls, and unsafe dynamic execution. No issues were found on either front.
+See [`docs/security-scan.md`](docs/security-scan.md) for the full report and
+the exact commands to reproduce it.
+
 ### What is tested
 
 **Unit tests** (`test/models/`, `test/state/`, `test/utils/`)
@@ -251,6 +316,9 @@ dart pub global activate coverage
   and Primary pill, previews a video by its captions, shows waiting counts as a
   number and a word, and — asserted explicitly — offers **no voice-call
   affordance anywhere**
+- A failed load on either screen explains itself and recovers on retry, and is
+  asserted *not* to read as "no contacts" or "no messages": an unreachable
+  conversation and one nobody has written in are different problems
 - Contacts stacks one column on a phone and two plus a sidebar on a tablet
 - The conversation renders bubbles in order, groups them by day, stamps them
   "8:02 am" as the prototype does, shows a voicemail as a transcript, states
@@ -291,8 +359,6 @@ dart pub global activate coverage
 - **Data is in memory.** `MockContactRepository` and `MockMessageRepository` seed
   from the prototype's fixtures, and messages sent during a session are kept only
   for the life of the process. Only the accessibility settings persist to disk.
-- **`android/` and `ios/` are not committed** — generate them with the command
-  above before `flutter build`.
 - **Video, audio and the captioned call are represented, not implemented.**
   Requesting a call opens a written confirmation; there is no media pipeline
   behind it yet, and the alert-volume and balance settings are stored and

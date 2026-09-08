@@ -35,9 +35,4 @@ abstract final class AppColors {
 
   /// Hairline borders. Decorative only — never the sole carrier of meaning.
   static const Color border = Color(0xFFC7DCE6);
-
-  /// High-contrast overrides, used when the user enables the high contrast
-  /// setting. Pure black on pure white measures 21:1.
-  static const Color highContrastText = Color(0xFF000000);
-  static const Color highContrastFill = Color(0xFFFFFFFF);
 }
