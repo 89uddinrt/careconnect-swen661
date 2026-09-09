@@ -1,0 +1,59 @@
+import 'package:flutter/material.dart';
+
+class MemoriesScreen extends StatelessWidget {
+  const MemoriesScreen({Key? key}) : super(key: key);
+
+  final List<Map<String, String>> memories = const [
+    {'title': 'Family Picnic', 'date': 'July 4, 2026', 'description': 'Enjoying the park with family and loved ones.'},
+    {'title': 'Birthday Celebration', 'date': 'August 15, 2026', 'description': 'Celebrating Idris’s milestone birthday party.'},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Memories')),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 0.8,
+        ),
+        itemCount: memories.length,
+        itemBuilder: (context, index) {
+          final memory = memories[index];
+          return Semantics(
+            label: 'Memory item: ${memory['title']}, dated ${memory['date']}. Description: ${memory['description']}',
+            button: true,
+            child: InkWell(
+              onTap: () {
+                // Detail view action
+              },
+              child: Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 90,
+                        color: Colors.grey[300],
+                        child: const Center(child: Icon(Icons.image, size: 40, color: Colors.grey)),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(memory['title']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      const SizedBox(height: 4),
+                      Text(memory['date']!, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
