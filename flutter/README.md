@@ -34,6 +34,6 @@ for the dependency and secrets scan.
 
 | Member | Screens |
 |:-------|:--------|
-| Justin Zhang | Welcome, Sign In, Sign Up, Home, My Day — merged into this branch from `WK4-Justin` |
-| Rehman Uddin | Appointments, Medicines, Memories — pending, still on his own branch |
-| Victor Lee | Contacts, Messaging, Accessibility Settings — plus the shared shell: theme, router, navigation, models, repositories, Provider controllers, and shared widgets; merged in Justin's screens and fixed a tablet-layout overflow bug in `StatusBadge` uncovered while screenshotting |
+| Justin Zhang | Welcome, Sign In, Sign Up, Home, My Day|
+| Rehman Uddin | Appointments, Medicines, Memories|
+| Victor Lee | Contacts, Messaging, Accessibility Settings|
