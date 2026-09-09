@@ -38,6 +38,7 @@ A responsive, accessible medical companion application for care recipients and t
 - [Testing](#testing)
 - [Git workflow](#git-workflow)
 - [Deployment](#deployment)
+- [Flutter mobile client](#flutter-mobile-client)
 - [Roadmap](#roadmap)
 - [Authors & credits](#authors--credits)
 - [License](#license)
@@ -105,7 +106,7 @@ Instructor-assigned hearing-impairment constraints, mapped to WCAG 2.2:
 | Target | Stack | Folder | Status |
 |:-------|:------|:-------|:-------|
 | Web — responsive application / PWA | React 18 + Vite + TypeScript + Tailwind | repository root (moving to `web/`) | Base app in place |
-| Mobile — Android and iOS | Flutter + Dart | `flutter/` | Planned |
+| Mobile — Android and iOS | Flutter + Dart | `flutter/` | In progress — see [Flutter mobile client](#flutter-mobile-client) |
 | Mobile — Android and iOS | React Native + Expo | `mobile/` | Planned |
 | Desktop — Windows | Electron | `desktop/` | Planned |
 
@@ -287,7 +288,12 @@ careconnect-swen661/
 ├── supabase/
 │   └── functions/chat-assistant/    # Edge Function — Anthropic API proxy
 │       └── index.ts
-├── flutter/                         # (planned) Flutter + Dart — Android & iOS
+├── flutter/                         # Flutter + Dart — Android & iOS (in progress, see below)
+│   ├── lib/                         # app, screens, state, models, data, widgets
+│   ├── test/                        # 217 tests — models, state, widgets, utils
+│   ├── docs/                        # screenshots + security-scan.md
+│   ├── coverage/                    # lcov.info + rendered HTML report
+│   └── README.md                    # points back to this section
 ├── mobile/                          # (planned) React Native + Expo — Android & iOS
 ├── desktop/                         # (planned) Electron — Windows
 ├── .env.example                     # placeholder environment variables
@@ -386,16 +392,14 @@ Anything prefixed `VITE_` is compiled into the browser bundle — never put a se
 
 ### Flutter — Android & iOS
 
-> Planned. These are the commands the team will use once `flutter/` is scaffolded.
-
 ```bash
 cd flutter
 flutter pub get
-flutter devices          # confirm an emulator or device is attached
-flutter run
+./run.sh                 # boots an iPhone simulator + Android emulator and runs on both
+# or: ./dev.sh           # interactively pick one device
 ```
 
-Release artifacts: `flutter build apk --release` or `flutter build ios --release`.
+Release artifacts: `flutter build apk --release` or `flutter build ios --release --no-codesign`. See [Flutter mobile client](#flutter-mobile-client) for screens, architecture, and tests.
 
 ### React Native — Expo
 
@@ -610,9 +614,95 @@ Windows desktop artifacts are produced by Electron. Members without a native Win
 
 ---
 
+## Flutter mobile client
+
+Documentation for the Flutter client is organized below to match the course's Part 3: Documentation checklist — project description, how to run the app, how to run tests, link to the coverage report, known issues/limitations, this week's contributions, and AI usage. The client itself lives in [`flutter/`](flutter/), which carries its own short README pointing back here.
+
+### Project description
+
+The mobile build of CareConnect for care recipients who are deaf or hard of hearing, built against the Week 3 design prototype. It carries Victor Lee's three screens (Contacts, Messaging, Accessibility Settings) and the shared app shell, merged with Justin Zhang's Welcome/Sign In/Sign Up/Home/My Day screens. Rehman Uddin's screens (Appointments, Medicines, Memories) exist as clearly-labeled placeholders so the six-destination navigation works end to end.
+
+**Screens**
+
+| Screen | Route | Summary |
+|:-------|:------|:--------|
+| Welcome | `/welcome` | Cold-start splash with the accessibility pitch and the two ways in (not counted as a functional screen). |
+| Sign In / Sign Up | `/sign-in`, `/sign-up` | Mock auth forms, continuing to Home. |
+| Home / Dashboard | `/home` | Day summary, next task, and a simulated video call reachable without sound. |
+| My Day | `/my-day` | Full daily checklist sharing a progress bar with Home. |
+| Contacts | `/contacts` | Roster with waiting-message counts shown as a number and a word, never a bare dot. |
+| Messaging | `/contacts/:contactId` | Conversation view with transcripts for voicemail, caption status for video, and **Notify** in place of a phone call. |
+| Accessibility Settings | `/settings` | Visual Alerts (cannot be disabled), Captions, Audio, Vibration, persisted with `SharedPreferences`. |
+
+That's 7 functional screens against the assignment's 7–10 target.
+
+**How it meets the assigned constraints**
+
+- **Captions** — a badge on video messages states caption availability; size/color/on-off live in Settings with a live preview.
+- **Text alternative for audio** — voicemail renders as a transcript instead of a play button.
+- **No sound-only alerts** — the visual-alert-banner setting has no way to be turned off, even by editing stored preferences.
+- **Clear visual notifications** — `AlertBanner` and a non-strobing visual flash always pair an icon with a text heading and body.
+- **User control of audio** — a volume slider (zero is valid) and an L/R balance control for a single aided ear.
+
+**Notify**, the replacement for a phone call: one non-strobing flash reading "Alert sent to *name*," an optional haptic, and a line written into the conversation confirming the alert went — so a deaf user has a record, not just a flash that already happened.
+
+**Architecture.** Provider-based state (four `ChangeNotifier` controllers with no widget imports, so each is unit-tested directly), `go_router` with a persistent shell around the six top-level destinations, and `SharedPreferences` for settings, one key per preference, with safe defaults on a corrupt store.
+
+### How to run the app
+
+```bash
+cd flutter
+flutter pub get
+./run.sh                 # boots an iPhone simulator + Android emulator and runs on both
+# or: ./dev.sh           # interactively pick one device
+```
+
+Release artifacts: `flutter build apk --release` or `flutter build ios --release --no-codesign`. Run `flutter doctor` first if the build doesn't come up cleanly. Full prerequisites (Flutter SDK, Android Studio, Xcode) are listed under [Getting started](#getting-started).
+
+### How to run tests
+
+```bash
+cd flutter
+flutter analyze
+flutter test --coverage
+```
+
+217 tests at 98.9% line coverage against a 60% floor. An `osv-scanner` dependency scan plus a manual secrets/network review found no issues — see [`flutter/docs/security-scan.md`](flutter/docs/security-scan.md).
+
+### Link to test coverage report
+
+Raw report: [`flutter/coverage/lcov.info`](flutter/coverage/lcov.info). Render it as HTML locally with:
+
+```bash
+genhtml flutter/coverage/lcov.info -o flutter/coverage/html && open flutter/coverage/html/index.html
+```
+
+A pre-rendered copy is also checked in at [`flutter/coverage/html/index.html`](flutter/coverage/html/index.html).
+
+### Known issues or limitations
+
+Data lives in memory except for accessibility settings; video, audio, and the captioned call are represented in the UI but not backed by a real media pipeline; vibration patterns are approximated with named haptic impacts; sign in/up validate their forms but don't check a real account store yet.
+
+### Team member contributions this week
+
+Week 4:
+
+| Member | Screens |
+|:-------|:--------|
+| Justin Zhang | Welcome, Sign In, Sign Up, Home, My Day — merged into this branch from `WK4-Justin` |
+| Rehman Uddin | Appointments, Medicines, Memories — pending, still on his own branch |
+| Victor Lee | Contacts, Messaging, Accessibility Settings — plus the shared shell: theme, router, navigation, models, repositories, Provider controllers, and shared widgets; merged in Justin's screens and fixed a tablet-layout overflow bug in `StatusBadge` uncovered while screenshotting |
+
+### AI usage summary
+
+The Week 3 design doc and wireframe screenshots were uploaded to Claude to help design the tablet and mobile versions of these screens, with a human in the loop reviewing and refining the output to stay aligned with the designers' intent.
+
+---
+
 ## Roadmap
 
-- Cross-platform ports: Flutter, React Native + Expo, and Electron
+- Finish the Flutter client: Rehman's Appointments/Medicines/Memories screens, a real media pipeline for video/audio, and account-backed sign in/up
+- Cross-platform ports: React Native + Expo and Electron
 - Captioned video component with a required caption track
 - Text alternatives and transcripts for every audio item
 - Multimodal alert architecture — visual first, sound optional
