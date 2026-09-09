@@ -55,8 +55,8 @@ void main() {
       await tester.tap(find.text('Medicines'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Medicines is still being built'), findsOneWidget);
-      expect(find.textContaining('Rehman'), findsOneWidget);
+      expect(find.text('Medications'), findsOneWidget);
+      expect(find.text('Aspirin'), findsOneWidget);
       expect(find.byType(ContactCard), findsNothing);
 
       await tester.tap(find.text('Contacts').last);
@@ -120,7 +120,7 @@ void main() {
       // A sliding transition would leave the outgoing page on screen for a few
       // hundred milliseconds. This one is gone on the next frame.
       expect(find.byType(ContactCard), findsNothing);
-      expect(find.text('Memories is still being built'), findsOneWidget);
+      expect(find.text('Family Picnic'), findsOneWidget);
     });
 
     testWidgets('the tablet sidebar navigates and stays on Settings', (

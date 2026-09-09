@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/app_scaffold.dart';
+
 class ApptsScreen extends StatelessWidget {
-  const ApptsScreen({Key? key}) : super(key: key);
+  const ApptsScreen({super.key});
 
   final List<Map<String, String>> appointments = const [
     {'doctor': 'Dr. Smith', 'time': '10:00 AM', 'purpose': 'Cardiology Checkup', 'date': 'Tomorrow'},
@@ -10,8 +12,8 @@ class ApptsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Appointments')),
+    return AppScaffold(
+      title: 'Appointments',
       body: ListView.builder(
         itemCount: appointments.length,
         itemBuilder: (context, index) {

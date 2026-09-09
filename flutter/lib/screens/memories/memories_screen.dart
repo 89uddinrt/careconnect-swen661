@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/app_scaffold.dart';
+
 class MemoriesScreen extends StatelessWidget {
-  const MemoriesScreen({Key? key}) : super(key: key);
+  const MemoriesScreen({super.key});
 
   final List<Map<String, String>> memories = const [
     {'title': 'Family Picnic', 'date': 'July 4, 2026', 'description': 'Enjoying the park with family and loved ones.'},
@@ -10,8 +12,8 @@ class MemoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Memories')),
+    return AppScaffold(
+      title: 'Memories',
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -37,15 +39,16 @@ class MemoriesScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        height: 90,
-                        color: Colors.grey[300],
-                        child: const Center(child: Icon(Icons.image, size: 40, color: Colors.grey)),
+                      Expanded(
+                        child: Container(
+                          color: Colors.grey[300],
+                          child: const Center(child: Icon(Icons.image, size: 40, color: Colors.grey)),
+                        ),
                       ),
                       const SizedBox(height: 8),
-                      Text(memory['title']!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(memory['title']!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 4),
-                      Text(memory['date']!, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                      Text(memory['date']!, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
                     ],
                   ),
                 ),

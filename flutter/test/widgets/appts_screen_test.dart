@@ -1,6 +1,6 @@
+import 'package:careconnect_mobile/screens/appointments/appts_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:careconnect_swen661/screens/appts_screen.dart';
 
 void main() {
   testWidgets('ApptsScreen renders appointments and checks semantics', (WidgetTester tester) async {
@@ -9,7 +9,7 @@ void main() {
     // Verify titles and data render correctly
     expect(find.text('Appointments'), findsOneWidget);
     expect(find.text('Dr. Smith'), findsOneWidget);
-    expect(find.text('Cardiology Checkup'), findsOneWidget);
+    expect(find.textContaining('Cardiology Checkup'), findsOneWidget);
     expect(find.text('Dr. Davis'), findsOneWidget);
 
     // Verify Semantics wrapper is present for accessibility

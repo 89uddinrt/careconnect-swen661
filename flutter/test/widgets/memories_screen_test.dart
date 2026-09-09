@@ -1,6 +1,6 @@
+import 'package:careconnect_mobile/screens/memories/memories_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:careconnect_swen661/screens/memories_screen.dart';
 
 void main() {
   testWidgets('MemoriesScreen renders memories and accessibility semantics', (WidgetTester tester) async {

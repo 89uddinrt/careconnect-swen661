@@ -1,6 +1,6 @@
+import 'package:careconnect_mobile/screens/medicines/medicine_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:careconnect_swen661/screens/medicine_screen.dart';
 
 void main() {
   testWidgets('MedicineScreen renders medications and toggles state', (WidgetTester tester) async {

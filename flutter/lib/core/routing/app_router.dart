@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../screens/appointments/appts_screen.dart';
 import '../../screens/auth/sign_in_screen.dart';
 import '../../screens/auth/sign_up_screen.dart';
 import '../../screens/contacts/contacts_screen.dart';
 import '../../screens/home/home_screen.dart';
+import '../../screens/medicines/medicine_screen.dart';
+import '../../screens/memories/memories_screen.dart';
 import '../../screens/messaging/message_thread_screen.dart';
 import '../../screens/my_day/my_day_screen.dart';
-import '../../screens/pending/pending_screen.dart';
 import '../../screens/settings/settings_screen.dart';
 import '../../screens/splash/welcome_screen.dart';
 import '../../widgets/app_scaffold.dart';
@@ -33,9 +35,8 @@ import 'routes.dart';
 /// Welcome, sign in and sign up sit outside the shell too, ahead of it: they
 /// are the app's cold-start flow, not a tab a user switches back to.
 ///
-/// The three screens still owned by Rehman are registered as [PendingScreen]
-/// placeholders so the prototype's navigation works end to end. Each is one
-/// line to replace when that branch merges.
+/// Appointments, Medicines and Memories are Rehman's screens, merged in from
+/// his branch.
 GoRouter buildRouter({String initialLocation = Routes.initial}) {
   // Built per router rather than at file scope, so two routers can exist at
   // once (as they do across widget tests) without clashing over one key.
@@ -101,27 +102,23 @@ GoRouter buildRouter({String initialLocation = Routes.initial}) {
                 page(const MyDayScreen()),
           ),
 
-          // ── Owned by other team members ─────────────────────────────────
           GoRoute(
             path: Routes.appointments,
             name: Routes.appointmentsName,
-            pageBuilder: (BuildContext context, GoRouterState state) => page(
-              const PendingScreen(title: 'Appointments', owner: 'Rehman'),
-            ),
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                page(const ApptsScreen()),
           ),
           GoRoute(
             path: Routes.medicines,
             name: Routes.medicinesName,
-            pageBuilder: (BuildContext context, GoRouterState state) => page(
-              const PendingScreen(title: 'Medicines', owner: 'Rehman'),
-            ),
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                page(const MedicineScreen()),
           ),
           GoRoute(
             path: Routes.memories,
             name: Routes.memoriesName,
-            pageBuilder: (BuildContext context, GoRouterState state) => page(
-              const PendingScreen(title: 'Memories', owner: 'Rehman'),
-            ),
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                page(const MemoriesScreen()),
           ),
         ],
       ),
