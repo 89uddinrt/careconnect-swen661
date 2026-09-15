@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1789475652214" clover="3.2.0">
+  <project timestamp="1789475652214" name="All files">
+    <metrics statements="103" coveredstatements="20" conditionals="108" coveredconditionals="0" methods="52" coveredmethods="0" elements="263" coveredelements="20" complexity="0" loc="103" ncloc="103" packages="1" files="3" classes="3"/>
+    <file name="Appointments.tsx" path="C:\Users\uddin\copilot-worktrees\careconnect-swen661\89uddinrt-refactored-system\src\pages\Appointments.tsx">
+      <metrics statements="45" coveredstatements="7" conditionals="46" coveredconditionals="0" methods="25" coveredmethods="0"/>
+      <line num="1" count="1" type="stmt"/>
+      <line num="2" count="1" type="stmt"/>
+      <line num="15" count="1" type="stmt"/>
+      <line num="16" count="1" type="stmt"/>
+      <line num="22" count="0" type="stmt"/>
+      <line num="23" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="24" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="30" count="0" type="stmt"/>
+      <line num="31" count="0" type="stmt"/>
+      <line num="40" count="0" type="stmt"/>
+      <line num="45" count="0" type="stmt"/>
+      <line num="50" count="0" type="stmt"/>
+      <line num="51" count="0" type="stmt"/>
+      <line num="52" count="0" type="stmt"/>
+      <line num="57" count="0" type="cond" truecount="0" falsecount="4"/>
+      <line num="58" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="63" count="1" type="stmt"/>
+      <line num="70" count="1" type="stmt"/>
+      <line num="90" count="0" type="stmt"/>
+      <line num="129" count="0" type="stmt"/>
+      <line num="131" count="0" type="cond" truecount="0" falsecount="3"/>
+      <line num="135" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="141" count="0" type="stmt"/>
+      <line num="223" count="0" type="stmt"/>
+      <line num="248" count="0" type="stmt"/>
+      <line num="265" count="1" type="stmt"/>
+      <line num="266" count="0" type="stmt"/>
+      <line num="268" count="0" type="stmt"/>
+      <line num="269" count="0" type="stmt"/>
+      <line num="273" count="0" type="stmt"/>
+      <line num="276" count="0" type="stmt"/>
+      <line num="279" count="0" type="stmt"/>
+      <line num="280" count="0" type="stmt"/>
+      <line num="281" count="0" type="stmt"/>
+      <line num="283" count="0" type="stmt"/>
+      <line num="284" count="0" type="stmt"/>
+      <line num="286" count="0" type="stmt"/>
+      <line num="287" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="289" count="0" type="stmt"/>
+      <line num="293" count="0" type="stmt"/>
+      <line num="294" count="0" type="stmt"/>
+      <line num="296" count="0" type="stmt"/>
+      <line num="320" count="0" type="stmt"/>
+      <line num="339" count="0" type="stmt"/>
+      <line num="358" count="0" type="stmt"/>
+    </file>
+    <file name="Medications.tsx" path="C:\Users\uddin\copilot-worktrees\careconnect-swen661\89uddinrt-refactored-system\src\pages\Medications.tsx">
+      <metrics statements="37" coveredstatements="7" conditionals="36" coveredconditionals="0" methods="16" coveredmethods="0"/>
+      <line num="1" count="1" type="stmt"/>
+      <line num="2" count="1" type="stmt"/>
+      <line num="3" count="1" type="stmt"/>
+      <line num="4" count="1" type="stmt"/>
+      <line num="7" count="1" type="stmt"/>
+      <line num="9" count="1" type="stmt"/>
+      <line num="12" count="0" type="stmt"/>
+      <line num="13" count="0" type="stmt"/>
+      <line num="14" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="16" count="0" type="stmt"/>
+      <line num="21" count="0" type="stmt"/>
+      <line num="25" count="0" type="stmt"/>
+      <line num="26" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="27" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="30" count="1" type="stmt"/>
+      <line num="31" count="0" type="stmt"/>
+      <line num="32" count="0" type="stmt"/>
+      <line num="33" count="0" type="stmt"/>
+      <line num="42" count="0" type="stmt"/>
+      <line num="43" count="0" type="stmt"/>
+      <line num="44" count="0" type="stmt"/>
+      <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="47" count="0" type="stmt"/>
+      <line num="51" count="0" type="stmt"/>
+      <line num="52" count="0" type="stmt"/>
+      <line num="53" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="57" count="0" type="stmt"/>
+      <line num="58" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="59" count="0" type="stmt"/>
+      <line num="67" count="0" type="stmt"/>
+      <line num="71" count="0" type="stmt"/>
+      <line num="72" count="0" type="stmt"/>
+      <line num="74" count="0" type="stmt"/>
+      <line num="112" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="113" count="0" type="stmt"/>
+      <line num="135" count="0" type="stmt"/>
+      <line num="149" count="0" type="stmt"/>
+    </file>
+    <file name="Memories.tsx" path="C:\Users\uddin\copilot-worktrees\careconnect-swen661\89uddinrt-refactored-system\src\pages\Memories.tsx">
+      <metrics statements="21" coveredstatements="6" conditionals="26" coveredconditionals="0" methods="11" coveredmethods="0"/>
+      <line num="1" count="1" type="stmt"/>
+      <line num="2" count="1" type="stmt"/>
+      <line num="3" count="1" type="stmt"/>
+      <line num="9" count="1" type="stmt"/>
+      <line num="17" count="1" type="stmt"/>
+      <line num="26" count="1" type="stmt"/>
+      <line num="27" count="0" type="stmt"/>
+      <line num="28" count="0" type="stmt"/>
+      <line num="30" count="0" type="stmt"/>
+      <line num="31" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="34" count="0" type="stmt"/>
+      <line num="35" count="0" type="stmt"/>
+      <line num="37" count="0" type="stmt"/>
+      <line num="51" count="0" type="stmt"/>
+      <line num="53" count="0" type="stmt"/>
+      <line num="74" count="0" type="stmt"/>
+      <line num="78" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="95" count="0" type="stmt"/>
+      <line num="99" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="124" count="0" type="stmt"/>
+      <line num="126" count="0" type="stmt"/>
+    </file>
+  </project>
+</coverage>
