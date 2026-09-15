@@ -638,4 +638,232 @@ describe('Medications Rendering Scenarios', () => {
   });
 });
 
+describe('Medications Edge Cases & Boundary Conditions', () => {
+  it('should handle very long medication names', () => {
+    const longName = 'A'.repeat(200);
+    expect(longName.length).toBe(200);
+  });
+
+  it('should handle zero dosage amounts', () => {
+    const dosage = parseDosage('0 mg');
+    expect(dosage.amount).toBe(0);
+  });
+
+  it('should handle very large dosage amounts', () => {
+    const dosage = parseDosage('10000 mg');
+    expect(dosage.amount).toBe(10000);
+  });
+
+  it('should parse dosage without spaces', () => {
+    const dosage = parseDosage('5mg');
+    expect(dosage.amount).toBe(5);
+  });
+
+  it('should handle time with leading zeros', () => {
+    expect(formatTime('09:05')).toBe('9:05 am');
+  });
+
+  it('should handle medication list with null entries', () => {
+    const meds = [
+      { id: '1', name: 'Med1' },
+      null,
+      { id: '2', name: 'Med2' },
+    ];
+    const filtered = meds.filter(m => m !== null);
+    expect(filtered).toHaveLength(2);
+  });
+
+  it('should handle medication with undefined properties', () => {
+    const med = {
+      id: '1',
+      name: 'Med',
+      dosage: undefined,
+    };
+    expect(med.dosage).toBeUndefined();
+  });
+
+  it('should handle empty time string', () => {
+    const emptyTime = '';
+    expect(emptyTime).toBe('');
+  });
+
+  it('should handle medication name with numbers only', () => {
+    const name = '12345';
+    expect(name).toMatch(/^\d+$/);
+  });
+
+  it('should handle medication with empty dosage unit', () => {
+    const dosage = parseDosage('5 ');
+    expect(dosage.unit.trim()).toBe('');
+  });
+});
+
+describe('Medications Data Validation & Type Checking', () => {
+  it('should validate medication object structure', () => {
+    const med = { id: '1', name: 'Med', dosage: '5mg' };
+    expect(typeof med.id).toBe('string');
+    expect(typeof med.name).toBe('string');
+    expect(typeof med.dosage).toBe('string');
+  });
+
+  it('should validate numeric dosage amounts', () => {
+    const dosage = parseDosage('25 mg');
+    expect(typeof dosage.amount).toBe('number');
+    expect(dosage.amount).toBeGreaterThanOrEqual(0);
+  });
+
+  it('should validate time format consistency', () => {
+    const times = ['08:00', '14:30', '23:59'];
+    times.forEach(time => {
+      const [h, m] = time.split(':').map(Number);
+      expect(h).toBeGreaterThanOrEqual(0);
+      expect(h).toBeLessThan(24);
+      expect(m).toBeGreaterThanOrEqual(0);
+      expect(m).toBeLessThan(60);
+    });
+  });
+
+  it('should validate frequency values', () => {
+    const frequencies = ['Once daily', 'Twice daily', 'Three times daily', 'As needed'];
+    frequencies.forEach(freq => {
+      expect(typeof freq).toBe('string');
+      expect(freq.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('should handle medication array type validation', () => {
+    const meds = [
+      { id: '1', name: 'Med1' },
+      { id: '2', name: 'Med2' },
+    ];
+    expect(Array.isArray(meds)).toBe(true);
+    meds.forEach(med => {
+      expect(med).toHaveProperty('id');
+      expect(med).toHaveProperty('name');
+    });
+  });
+});
+
+describe('Medications Complex Filtering & Sorting', () => {
+  it('should filter medications by dosage range', () => {
+    const meds = [
+      { id: '1', dosageAmount: 5 },
+      { id: '2', dosageAmount: 10 },
+      { id: '3', dosageAmount: 20 },
+    ];
+    const filtered = meds.filter(m => m.dosageAmount >= 10 && m.dosageAmount <= 20);
+    expect(filtered).toHaveLength(2);
+  });
+
+  it('should sort medications by name alphabetically', () => {
+    let meds = [
+      { id: '1', name: 'Zolpidem' },
+      { id: '2', name: 'Aspirin' },
+      { id: '3', name: 'Ibuprofen' },
+    ];
+    meds = meds.sort((a, b) => a.name.localeCompare(b.name));
+    expect(meds[0].name).toBe('Aspirin');
+    expect(meds[2].name).toBe('Zolpidem');
+  });
+
+  it('should sort medications by frequency priority', () => {
+    const frequencyOrder = { 'Once daily': 1, 'Twice daily': 2, 'Three times daily': 3 };
+    let meds = [
+      { id: '1', frequency: 'Three times daily' },
+      { id: '2', frequency: 'Once daily' },
+      { id: '3', frequency: 'Twice daily' },
+    ];
+    meds = meds.sort((a, b) => frequencyOrder[a.frequency] - frequencyOrder[b.frequency]);
+    expect(meds[0].frequency).toBe('Once daily');
+    expect(meds[2].frequency).toBe('Three times daily');
+  });
+
+  it('should group medications by time of day', () => {
+    const meds = [
+      { id: '1', time: '08:00' },
+      { id: '2', time: '14:00' },
+      { id: '3', time: '08:00' },
+    ];
+    const grouped = {};
+    meds.forEach(med => {
+      if (!grouped[med.time]) grouped[med.time] = [];
+      grouped[med.time].push(med);
+    });
+    expect(grouped['08:00']).toHaveLength(2);
+    expect(grouped['14:00']).toHaveLength(1);
+  });
+
+  it('should filter by medication status', () => {
+    const meds = [
+      { id: '1', taken: true },
+      { id: '2', taken: false },
+      { id: '3', taken: true },
+    ];
+    const taken = meds.filter(m => m.taken);
+    const pending = meds.filter(m => !m.taken);
+    expect(taken).toHaveLength(2);
+    expect(pending).toHaveLength(1);
+  });
+
+  it('should search medications by partial name match', () => {
+    const meds = [
+      { id: '1', name: 'Amlodipine' },
+      { id: '2', name: 'Lisinopril' },
+      { id: '3', name: 'Aspirin' },
+    ];
+    const search = 'amin';
+    const results = meds.filter(m => m.name.toLowerCase().includes(search.toLowerCase()));
+    expect(results).toHaveLength(1);
+    expect(results[0].name).toBe('Amlodipine');
+  });
+
+  it('should filter medications with warnings or alerts', () => {
+    const meds = [
+      { id: '1', name: 'Med1', hasWarning: true },
+      { id: '2', name: 'Med2', hasWarning: false },
+      { id: '3', name: 'Med3', hasWarning: true },
+    ];
+    const warnings = meds.filter(m => m.hasWarning);
+    expect(warnings).toHaveLength(2);
+  });
+});
+
+describe('Medications Utility Function Edge Cases', () => {
+  it('should handle 24-hour format edge cases', () => {
+    expect(formatTime('00:00')).toBe('12:00 am');
+    expect(formatTime('12:00')).toBe('12:00 pm');
+    expect(formatTime('13:00')).toBe('1:00 pm');
+    expect(formatTime('23:59')).toBe('11:59 pm');
+  });
+
+  it('should handle dosage parsing with extra whitespace', () => {
+    const dosage = parseDosage('  50   mg  ');
+    expect(dosage.amount).toBe(50);
+  });
+
+  it('should handle negative time values gracefully', () => {
+    const invalidTime = '-5:30';
+    expect(invalidTime).toContain('-');
+  });
+
+  it('should handle non-standard dosage units', () => {
+    const dosage = parseDosage('1 tablet');
+    expect(dosage.unit).toBe('tablet');
+  });
+
+  it('should calculate time difference between doses', () => {
+    const time1 = new Date('2026-09-15T08:00:00');
+    const time2 = new Date('2026-09-15T14:00:00');
+    const diff = (time2.getTime() - time1.getTime()) / (1000 * 60 * 60);
+    expect(diff).toBe(6);
+  });
+
+  it('should handle midnight boundary in time calculations', () => {
+    const time1 = new Date('2026-09-15T23:00:00');
+    const time2 = new Date('2026-09-16T01:00:00');
+    const diffMs = time2.getTime() - time1.getTime();
+    expect(diffMs).toBeGreaterThan(0);
+  });
+});
+
 

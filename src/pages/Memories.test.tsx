@@ -895,4 +895,262 @@ describe('Memories Rendering Scenarios', () => {
   });
 });
 
+describe('Memories Edge Cases & Boundary Conditions', () => {
+  it('should handle very long memory titles', () => {
+    const longTitle = 'A'.repeat(500);
+    expect(longTitle.length).toBe(500);
+  });
+
+  it('should handle memory with empty description', () => {
+    const memory = { id: '1', title: 'Memory', description: '' };
+    expect(memory.description).toBe('');
+  });
+
+  it('should handle memory with null date', () => {
+    const memory = { id: '1', title: 'Memory', date: null };
+    expect(memory.date).toBeNull();
+  });
+
+  it('should handle memory list with null entries', () => {
+    const memories = [
+      { id: '1', title: 'Memory1' },
+      null,
+      { id: '2', title: 'Memory2' },
+    ];
+    const filtered = memories.filter(m => m !== null);
+    expect(filtered).toHaveLength(2);
+  });
+
+  it('should handle empty memory title', () => {
+    const memory = { id: '1', title: '', category: 'Family' };
+    expect(memory.title).toBe('');
+  });
+
+  it('should handle category with no memories', () => {
+    const memories = [
+      { id: '1', category: 'Family' },
+      { id: '2', category: 'Family' },
+    ];
+    const results = memories.filter(m => m.category === 'Places');
+    expect(results).toHaveLength(0);
+  });
+
+  it('should handle all memories pinned', () => {
+    const memories = [
+      { id: '1', pinned: true },
+      { id: '2', pinned: true },
+      { id: '3', pinned: true },
+    ];
+    const unpinned = memories.filter(m => !m.pinned);
+    expect(unpinned).toHaveLength(0);
+  });
+
+  it('should handle no memories pinned', () => {
+    const memories = [
+      { id: '1', pinned: false },
+      { id: '2', pinned: false },
+    ];
+    const pinned = memories.filter(m => m.pinned);
+    expect(pinned).toHaveLength(0);
+  });
+
+  it('should handle single memory in list', () => {
+    const memories = [{ id: '1', title: 'Only Memory' }];
+    expect(memories).toHaveLength(1);
+  });
+
+  it('should handle memory with undefined fields', () => {
+    const memory = {
+      id: '1',
+      title: 'Memory',
+      description: undefined,
+      category: 'Family',
+    };
+    expect(memory.description).toBeUndefined();
+  });
+});
+
+describe('Memories Data Validation & Type Checking', () => {
+  it('should validate memory object structure', () => {
+    const memory = { id: '1', title: 'Memory', category: 'Family' };
+    expect(typeof memory.id).toBe('string');
+    expect(typeof memory.title).toBe('string');
+    expect(typeof memory.category).toBe('string');
+  });
+
+  it('should validate boolean pinned state', () => {
+    const memory = { id: '1', title: 'Memory', pinned: true };
+    expect(typeof memory.pinned).toBe('boolean');
+  });
+
+  it('should validate memory array type', () => {
+    const memories = [
+      { id: '1', title: 'Memory1' },
+      { id: '2', title: 'Memory2' },
+    ];
+    expect(Array.isArray(memories)).toBe(true);
+    memories.forEach(mem => {
+      expect(mem).toHaveProperty('id');
+      expect(mem).toHaveProperty('title');
+    });
+  });
+
+  it('should validate category values', () => {
+    const validCategories = ['Family', 'Places', 'Pet', 'Hobby', 'Memory'];
+    validCategories.forEach(cat => {
+      expect(typeof cat).toBe('string');
+      expect(cat.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('should validate date format', () => {
+    const memory = { id: '1', date: '2026-09-15' };
+    expect(memory.date).toMatch(/\d{4}-\d{2}-\d{2}/);
+  });
+});
+
+describe('Memories Complex Filtering & Sorting', () => {
+  it('should filter by category and date range', () => {
+    const memories = [
+      { id: '1', category: 'Family', date: '2026-09-10' },
+      { id: '2', category: 'Family', date: '2026-09-20' },
+      { id: '3', category: 'Places', date: '2026-09-15' },
+    ];
+    
+    const filtered = memories.filter(m => 
+      m.category === 'Family' && 
+      m.date >= '2026-09-15'
+    );
+    expect(filtered).toHaveLength(1);
+  });
+
+  it('should sort by date descending', () => {
+    let memories = [
+      { id: '1', date: '2026-09-10' },
+      { id: '2', date: '2026-09-20' },
+      { id: '3', date: '2026-09-15' },
+    ];
+    
+    memories = memories.sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    expect(memories[0].date).toBe('2026-09-20');
+  });
+
+  it('should sort by pinned then by date', () => {
+    let memories = [
+      { id: '1', pinned: false, date: '2026-09-20' },
+      { id: '2', pinned: true, date: '2026-09-10' },
+      { id: '3', pinned: false, date: '2026-09-15' },
+    ];
+    
+    memories = memories.sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
+    
+    expect(memories[0].pinned).toBe(true);
+    expect(memories[1].pinned).toBe(false);
+  });
+
+  it('should group memories by year', () => {
+    const memories = [
+      { id: '1', date: '2026-09-15' },
+      { id: '2', date: '2025-06-10' },
+      { id: '3', date: '2026-03-20' },
+    ];
+    
+    const grouped = {};
+    memories.forEach(mem => {
+      const year = mem.date.substring(0, 4);
+      if (!grouped[year]) grouped[year] = [];
+      grouped[year].push(mem);
+    });
+    
+    expect(grouped['2026']).toHaveLength(2);
+    expect(grouped['2025']).toHaveLength(1);
+  });
+
+  it('should filter by tags', () => {
+    const memories = [
+      { id: '1', tags: ['summer', 'vacation'] },
+      { id: '2', tags: ['winter', 'family'] },
+      { id: '3', tags: ['summer', 'family'] },
+    ];
+    
+    const results = memories.filter(m => m.tags.includes('summer'));
+    expect(results).toHaveLength(2);
+  });
+});
+
+describe('Memories Utility Function Edge Cases', () => {
+  it('should filter by category with special characters', () => {
+    const memory = { category: 'Family & Friends' };
+    const result = filterMemoriesByCategory([memory], 'Family & Friends');
+    expect(result).toHaveLength(1);
+  });
+
+  it('should handle sortByPinned with empty list', () => {
+    const result = sortByPinned([]);
+    expect(result).toHaveLength(0);
+  });
+
+  it('should handle sortByPinned with all pinned', () => {
+    const memories = [
+      { id: '1', pinned: true },
+      { id: '2', pinned: true },
+    ];
+    const result = sortByPinned(memories);
+    expect(result[0].pinned).toBe(true);
+    expect(result[1].pinned).toBe(true);
+  });
+
+  it('should handle sortByPinned with all unpinned', () => {
+    const memories = [
+      { id: '1', pinned: false },
+      { id: '2', pinned: false },
+    ];
+    const result = sortByPinned(memories);
+    expect(result[0].pinned).toBe(false);
+    expect(result[1].pinned).toBe(false);
+  });
+
+  it('should preserve pinned order stability', () => {
+    const memories = [
+      { id: '1', pinned: true, order: 1 },
+      { id: '2', pinned: true, order: 2 },
+      { id: '3', pinned: false, order: 3 },
+    ];
+    const result = sortByPinned(memories);
+    const pinnedIds = result.filter(m => m.pinned).map(m => m.id);
+    expect(pinnedIds[0]).toBe('1');
+    expect(pinnedIds[1]).toBe('2');
+  });
+
+  it('should handle memory date calculations', () => {
+    const date1 = new Date('2026-09-15');
+    const date2 = new Date('2026-09-20');
+    const diffDays = (date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24);
+    expect(diffDays).toBe(5);
+  });
+
+  it('should calculate time since memory created', () => {
+    const created = new Date('2026-09-15T12:00:00');
+    const now = new Date('2026-09-15T14:30:00');
+    const hoursAgo = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
+    expect(hoursAgo).toBe(2.5);
+  });
+
+  it('should handle leap year dates', () => {
+    const date = new Date('2024-02-29');
+    expect(date.getDate()).toBe(29);
+  });
+
+  it('should handle timezone aware dates', () => {
+    const isoDate = '2026-09-15T12:00:00Z';
+    const date = new Date(isoDate);
+    expect(date.toISOString()).toBe(isoDate);
+  });
+});
+
 

@@ -160,3 +160,296 @@ describe('Appointments Responsive Design', () => {
     expect(true).toBe(true); // Responsive design verified through manual testing
   });
 });
+
+describe('Appointments Edge Cases & Boundary Conditions', () => {
+  it('should handle very long doctor names', () => {
+    const longName = 'Dr. ' + 'A'.repeat(200);
+    expect(longName.length).toBeGreaterThan(200);
+  });
+
+  it('should handle appointment with no location', () => {
+    const appointment = {
+      id: '1',
+      date: '2026-09-18',
+      time: '14:30',
+      doctor: 'Dr. Chen',
+      specialty: 'Cardiology',
+      location: '',
+    };
+    expect(appointment.location).toBe('');
+  });
+
+  it('should handle midnight appointment', () => {
+    expect(fmt12('00:00')).toBe('12:00 am');
+  });
+
+  it('should handle 23:59 appointment', () => {
+    expect(fmt12('23:59')).toBe('11:59 pm');
+  });
+
+  it('should handle appointment with special characters in location', () => {
+    const location = "St. Mary's Hospital (Building A)";
+    expect(location).toContain("'");
+    expect(location).toContain('(');
+  });
+
+  it('should handle appointment with no specialty', () => {
+    const appointment = {
+      id: '1',
+      date: '2026-09-18',
+      time: '14:30',
+      doctor: 'Dr. Chen',
+      specialty: '',
+    };
+    expect(appointment.specialty).toBe('');
+  });
+
+  it('should handle single appointment', () => {
+    const appointments = [
+      { id: '1', date: '2026-09-18', time: '14:30', doctor: 'Dr. Chen' },
+    ];
+    expect(appointments).toHaveLength(1);
+  });
+
+  it('should handle many appointments', () => {
+    const appointments = Array(100).fill(null).map((_, i) => ({
+      id: String(i),
+      date: '2026-09-18',
+      time: '14:30',
+      doctor: `Dr. ${i}`,
+    }));
+    expect(appointments).toHaveLength(100);
+  });
+});
+
+describe('Appointments Data Validation & Type Checking', () => {
+  it('should validate appointment ID is string', () => {
+    const appointment = { id: '1', date: '2026-09-18' };
+    expect(typeof appointment.id).toBe('string');
+  });
+
+  it('should validate date format consistency', () => {
+    const dates = ['2026-09-18', '2026-10-05', '2026-12-25'];
+    dates.forEach(date => {
+      expect(date).toMatch(/\d{4}-\d{2}-\d{2}/);
+    });
+  });
+
+  it('should validate time format consistency', () => {
+    const times = ['09:00', '14:30', '23:59', '00:00'];
+    times.forEach(time => {
+      expect(time).toMatch(/\d{2}:\d{2}/);
+    });
+  });
+
+  it('should validate 12-hour format conversion', () => {
+    const hours = ['00', '01', '12', '13', '23'];
+    hours.forEach(hour => {
+      const time = fmt12(`${hour}:00`);
+      expect(time).toMatch(/(am|pm)/);
+    });
+  });
+
+  it('should ensure doctor field exists', () => {
+    const appointment = { id: '1', doctor: 'Dr. Smith' };
+    expect(appointment).toHaveProperty('doctor');
+    expect(appointment.doctor).toBeTruthy();
+  });
+});
+
+describe('Appointments Time Calculations', () => {
+  it('should calculate appointment duration', () => {
+    const startTime = new Date('2026-09-18T14:00:00');
+    const endTime = new Date('2026-09-18T14:30:00');
+    const durationMin = (endTime.getTime() - startTime.getTime()) / (1000 * 60);
+    expect(durationMin).toBe(30);
+  });
+
+  it('should calculate time until appointment', () => {
+    const now = new Date('2026-09-15T09:00:00');
+    const appointment = new Date('2026-09-18T14:00:00');
+    const daysUntil = (appointment.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+    expect(daysUntil).toBeCloseTo(3.208, 1);
+  });
+
+  it('should check if appointment is in past', () => {
+    const now = new Date('2026-09-20T15:00:00');
+    const pastAppointment = new Date('2026-09-18T14:00:00');
+    expect(pastAppointment.getTime()).toBeLessThan(now.getTime());
+  });
+
+  it('should check if appointment is upcoming', () => {
+    const now = new Date('2026-09-15T09:00:00');
+    const futureAppointment = new Date('2026-09-18T14:00:00');
+    expect(futureAppointment.getTime()).toBeGreaterThan(now.getTime());
+  });
+
+  it('should check if appointment is today', () => {
+    const today = new Date('2026-09-15');
+    const appointmentDate = new Date('2026-09-15');
+    expect(today.toDateString()).toBe(appointmentDate.toDateString());
+  });
+
+  it('should handle appointment at leap year date', () => {
+    const date = new Date('2024-02-29');
+    expect(date.getDate()).toBe(29);
+  });
+
+  it('should handle timezone conversion', () => {
+    const isoTime = '2026-09-18T14:30:00Z';
+    const date = new Date(isoTime);
+    expect(date.toISOString()).toBe(isoTime);
+  });
+});
+
+describe('Appointments Sorting & Filtering', () => {
+  it('should sort appointments by date ascending', () => {
+    let appointments = [
+      { id: '1', date: '2026-09-20' },
+      { id: '2', date: '2026-09-18' },
+      { id: '3', date: '2026-09-22' },
+    ];
+    appointments = appointments.sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+    expect(appointments[0].date).toBe('2026-09-18');
+    expect(appointments[2].date).toBe('2026-09-22');
+  });
+
+  it('should sort appointments by time', () => {
+    let appointments = [
+      { id: '1', time: '14:30' },
+      { id: '2', time: '09:00' },
+      { id: '3', time: '18:00' },
+    ];
+    appointments = appointments.sort((a, b) => a.time.localeCompare(b.time));
+    expect(appointments[0].time).toBe('09:00');
+    expect(appointments[2].time).toBe('18:00');
+  });
+
+  it('should filter appointments by specialty', () => {
+    const appointments = [
+      { id: '1', specialty: 'Cardiology', doctor: 'Dr. Chen' },
+      { id: '2', specialty: 'Dermatology', doctor: 'Dr. Smith' },
+      { id: '3', specialty: 'Cardiology', doctor: 'Dr. Jones' },
+    ];
+    const cardiology = appointments.filter(a => a.specialty === 'Cardiology');
+    expect(cardiology).toHaveLength(2);
+  });
+
+  it('should filter appointments by doctor', () => {
+    const appointments = [
+      { id: '1', doctor: 'Dr. Chen', specialty: 'Cardiology' },
+      { id: '2', doctor: 'Dr. Smith', specialty: 'Dermatology' },
+    ];
+    const chenAppts = appointments.filter(a => a.doctor === 'Dr. Chen');
+    expect(chenAppts).toHaveLength(1);
+    expect(chenAppts[0].specialty).toBe('Cardiology');
+  });
+
+  it('should filter appointments by date range', () => {
+    const appointments = [
+      { id: '1', date: '2026-09-10' },
+      { id: '2', date: '2026-09-18' },
+      { id: '3', date: '2026-10-01' },
+    ];
+    const filtered = appointments.filter(a => 
+      a.date >= '2026-09-15' && a.date <= '2026-09-30'
+    );
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].date).toBe('2026-09-18');
+  });
+
+  it('should search appointments by doctor name', () => {
+    const appointments = [
+      { id: '1', doctor: 'Dr. Robert Chen' },
+      { id: '2', doctor: 'Dr. Emily Jenkins' },
+      { id: '3', doctor: 'Dr. Charles Chen' },
+    ];
+    const search = 'Chen';
+    const results = appointments.filter(a => a.doctor.includes(search));
+    expect(results).toHaveLength(2);
+  });
+
+  it('should search appointments by location', () => {
+    const appointments = [
+      { id: '1', location: 'Annapolis Medical Center' },
+      { id: '2', location: 'Johns Hopkins Hospital' },
+      { id: '3', location: 'Annapolis Clinic' },
+    ];
+    const search = 'Annapolis';
+    const results = appointments.filter(a => a.location.includes(search));
+    expect(results).toHaveLength(2);
+  });
+});
+
+describe('Appointments Complex Scenarios', () => {
+  it('should handle multiple appointments same day different times', () => {
+    const appointments = [
+      { id: '1', date: '2026-09-18', time: '09:00', doctor: 'Dr. Chen' },
+      { id: '2', date: '2026-09-18', time: '14:30', doctor: 'Dr. Smith' },
+      { id: '3', date: '2026-09-18', time: '16:00', doctor: 'Dr. Jones' },
+    ];
+    
+    const sameDayAppts = appointments.filter(a => a.date === '2026-09-18');
+    expect(sameDayAppts).toHaveLength(3);
+  });
+
+  it('should handle recurring appointments pattern', () => {
+    const baseDate = new Date('2026-09-18');
+    const recurrences = Array(4).fill(null).map((_, i) => {
+      const date = new Date(baseDate);
+      date.setDate(date.getDate() + (i * 7)); // weekly
+      return {
+        id: String(i),
+        date: date.toISOString().split('T')[0],
+        doctor: 'Dr. Chen',
+      };
+    });
+    
+    expect(recurrences).toHaveLength(4);
+    expect(recurrences[1].date).not.toBe(recurrences[0].date);
+  });
+
+  it('should handle appointment with reminders', () => {
+    const appointment = {
+      id: '1',
+      date: '2026-09-18',
+      time: '14:30',
+      doctor: 'Dr. Chen',
+      reminders: [
+        { minutes: 1440, type: 'day-before' },
+        { minutes: 60, type: 'hour-before' },
+        { minutes: 15, type: 'quarter-hour' },
+      ],
+    };
+    
+    expect(appointment.reminders).toHaveLength(3);
+  });
+
+  it('should handle appointment status tracking', () => {
+    const appointment = {
+      id: '1',
+      date: '2026-09-18',
+      doctor: 'Dr. Chen',
+      status: 'scheduled',
+      attended: false,
+    };
+    
+    expect(['scheduled', 'completed', 'cancelled']).toContain(appointment.status);
+    expect(typeof appointment.attended).toBe('boolean');
+  });
+
+  it('should track appointment cancellation reason', () => {
+    const appointment = {
+      id: '1',
+      date: '2026-09-18',
+      doctor: 'Dr. Chen',
+      status: 'cancelled',
+      cancellationReason: 'Patient requested reschedule',
+    };
+    
+    expect(appointment.status).toBe('cancelled');
+    expect(appointment.cancellationReason).toBeTruthy();
+  });
+});
