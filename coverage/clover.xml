@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1789476137864" clover="3.2.0">
-  <project timestamp="1789476137864" name="All files">
+<coverage generated="1789476877100" clover="3.2.0">
+  <project timestamp="1789476877100" name="All files">
     <metrics statements="103" coveredstatements="55" conditionals="108" coveredconditionals="42" methods="52" coveredmethods="21" elements="263" coveredelements="118" complexity="0" loc="103" ncloc="103" packages="1" files="3" classes="3"/>
     <file name="Appointments.tsx" path="C:\Users\uddin\copilot-worktrees\careconnect-swen661\89uddinrt-refactored-system\src\pages\Appointments.tsx">
       <metrics statements="45" coveredstatements="42" conditionals="46" coveredconditionals="42" methods="25" coveredmethods="21"/>
