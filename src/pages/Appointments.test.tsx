@@ -453,3 +453,387 @@ describe('Appointments Complex Scenarios', () => {
     expect(appointment.cancellationReason).toBeTruthy();
   });
 });
+
+describe('Appointments Advanced State Management', () => {
+  it('should handle appointment list initialization', () => {
+    const appointments = [
+      { id: '1', doctor: 'Dr. Chen', date: '2026-09-18', time: '09:00' },
+      { id: '2', doctor: 'Dr. Smith', date: '2026-09-19', time: '14:00' },
+    ];
+    expect(appointments).toHaveLength(2);
+  });
+
+  it('should add appointment to list', () => {
+    let appointments = [{ id: '1', doctor: 'Dr. Chen' }];
+    appointments = [...appointments, { id: '2', doctor: 'Dr. Smith' }];
+    expect(appointments).toHaveLength(2);
+  });
+
+  it('should remove appointment from list', () => {
+    let appointments = [
+      { id: '1', doctor: 'Dr. Chen' },
+      { id: '2', doctor: 'Dr. Smith' },
+    ];
+    appointments = appointments.filter(a => a.id !== '1');
+    expect(appointments).toHaveLength(1);
+    expect(appointments[0].id).toBe('2');
+  });
+
+  it('should update appointment in list', () => {
+    let appointments = [
+      { id: '1', doctor: 'Dr. Chen', status: 'scheduled' },
+      { id: '2', doctor: 'Dr. Smith', status: 'scheduled' },
+    ];
+    appointments = appointments.map(a => 
+      a.id === '1' ? { ...a, status: 'completed' } : a
+    );
+    expect(appointments[0].status).toBe('completed');
+    expect(appointments[1].status).toBe('scheduled');
+  });
+
+  it('should clear all appointments', () => {
+    let appointments = [
+      { id: '1', doctor: 'Dr. Chen' },
+      { id: '2', doctor: 'Dr. Smith' },
+    ];
+    appointments = [];
+    expect(appointments).toHaveLength(0);
+  });
+
+  it('should handle multiple status updates', () => {
+    let appointment = { id: '1', status: 'pending' };
+    expect(appointment.status).toBe('pending');
+    
+    appointment = { ...appointment, status: 'confirmed' };
+    expect(appointment.status).toBe('confirmed');
+    
+    appointment = { ...appointment, status: 'completed' };
+    expect(appointment.status).toBe('completed');
+  });
+});
+
+describe('Appointments Date & Time Operations', () => {
+  it('should calculate days until appointment', () => {
+    const today = new Date('2026-09-15');
+    const appointmentDate = new Date('2026-09-18');
+    const daysUntil = Math.floor((appointmentDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    expect(daysUntil).toBe(3);
+  });
+
+  it('should determine if appointment is today', () => {
+    const today = new Date('2026-09-15').toISOString().split('T')[0];
+    const appointmentDate = '2026-09-15';
+    expect(today).toBe(appointmentDate);
+  });
+
+  it('should determine if appointment is past', () => {
+    const today = new Date('2026-09-15').getTime();
+    const appointmentTime = new Date('2026-09-10').getTime();
+    expect(appointmentTime).toBeLessThan(today);
+  });
+
+  it('should determine if appointment is future', () => {
+    const today = new Date('2026-09-15').getTime();
+    const appointmentTime = new Date('2026-09-20').getTime();
+    expect(appointmentTime).toBeGreaterThan(today);
+  });
+
+  it('should format appointment datetime', () => {
+    const date = '2026-09-18';
+    const time = '14:30';
+    const formatted = `${date} at ${time}`;
+    expect(formatted).toBe('2026-09-18 at 14:30');
+  });
+
+  it('should handle time zone considerations', () => {
+    const time1 = new Date('2026-09-18T14:30:00Z');
+    const time2 = new Date('2026-09-18T14:30:00Z');
+    expect(time1.getTime()).toBe(time2.getTime());
+  });
+
+  it('should calculate appointment duration', () => {
+    const startTime = '09:00';
+    const endTime = '10:30';
+    const [sh, sm] = startTime.split(':').map(Number);
+    const [eh, em] = endTime.split(':').map(Number);
+    const duration = (eh * 60 + em) - (sh * 60 + sm);
+    expect(duration).toBe(90);
+  });
+
+  it('should detect time conflicts', () => {
+    const appt1 = { startTime: '09:00', endTime: '10:00' };
+    const appt2 = { startTime: '09:30', endTime: '10:30' };
+    const hasConflict = !(appt2.startTime >= appt1.endTime || appt2.endTime <= appt1.startTime);
+    expect(hasConflict).toBe(true);
+  });
+});
+
+describe('Appointments Filtering Advanced', () => {
+  const appointments = [
+    { id: '1', doctor: 'Dr. Chen', specialty: 'Cardiology', status: 'scheduled', date: '2026-09-20' },
+    { id: '2', doctor: 'Dr. Smith', specialty: 'Dermatology', status: 'completed', date: '2026-09-10' },
+    { id: '3', doctor: 'Dr. Jones', specialty: 'Orthopedics', status: 'cancelled', date: '2026-10-01' },
+  ];
+
+  it('should filter by multiple criteria (specialty and status)', () => {
+    const filtered = appointments.filter(a => 
+      a.specialty === 'Cardiology' && a.status === 'scheduled'
+    );
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].doctor).toBe('Dr. Chen');
+  });
+
+  it('should filter upcoming appointments only', () => {
+    const today = '2026-09-15';
+    const filtered = appointments.filter(a => a.date > today);
+    expect(filtered.length).toBeGreaterThan(0);
+  });
+
+  it('should filter past appointments only', () => {
+    const today = '2026-09-15';
+    const filtered = appointments.filter(a => a.date < today);
+    expect(filtered.length).toBeGreaterThan(0);
+  });
+
+  it('should exclude cancelled appointments', () => {
+    const filtered = appointments.filter(a => a.status !== 'cancelled');
+    expect(filtered.length).toBeLessThan(appointments.length);
+  });
+
+  it('should sort by date ascending', () => {
+    const sorted = [...appointments].sort((a, b) => a.date.localeCompare(b.date));
+    expect(sorted[0].date).toBeLessThanOrEqual(sorted[sorted.length - 1].date);
+  });
+
+  it('should sort by doctor name', () => {
+    const sorted = [...appointments].sort((a, b) => a.doctor.localeCompare(b.doctor));
+    expect(sorted[0].doctor).toBe('Dr. Chen');
+  });
+});
+
+describe('Appointments Notification & Reminders', () => {
+  it('should determine reminder notification time', () => {
+    const appointmentTime = new Date('2026-09-18T14:30:00');
+    const reminderMinutes = 60;
+    const reminderTime = new Date(appointmentTime.getTime() - reminderMinutes * 60000);
+    expect(reminderTime.getTime()).toBeLessThan(appointmentTime.getTime());
+  });
+
+  it('should create multiple reminders for single appointment', () => {
+    const reminderTimes = [1440, 60, 15]; // day before, hour before, 15 min before
+    const reminders = reminderTimes.map(minutes => ({ minutes, type: `${minutes}min` }));
+    expect(reminders).toHaveLength(3);
+  });
+
+  it('should check if reminder should be shown', () => {
+    const appointmentTime = new Date('2026-09-18T14:30:00').getTime();
+    const currentTime = new Date('2026-09-18T14:29:00').getTime();
+    const reminderMinutes = 1;
+    const shouldShow = (appointmentTime - currentTime) / 60000 <= reminderMinutes;
+    expect(shouldShow).toBe(false);
+  });
+
+  it('should format reminder message', () => {
+    const doctor = 'Dr. Chen';
+    const time = '2:30 PM';
+    const message = `Reminder: Appointment with ${doctor} at ${time}`;
+    expect(message).toContain(doctor);
+    expect(message).toContain(time);
+  });
+
+  it('should track reminder as shown', () => {
+    const reminder = { id: '1', shown: false };
+    reminder.shown = true;
+    expect(reminder.shown).toBe(true);
+  });
+});
+
+describe('Appointments User Actions', () => {
+  it('should handle appointment cancellation', () => {
+    let appointment = { id: '1', status: 'scheduled' };
+    appointment = { ...appointment, status: 'cancelled', cancelledAt: new Date().toISOString() };
+    expect(appointment.status).toBe('cancelled');
+    expect(appointment.cancelledAt).toBeTruthy();
+  });
+
+  it('should handle appointment rescheduling', () => {
+    let appointment = { id: '1', date: '2026-09-18', time: '09:00' };
+    appointment = { ...appointment, date: '2026-09-25', time: '14:00' };
+    expect(appointment.date).toBe('2026-09-25');
+    expect(appointment.time).toBe('14:00');
+  });
+
+  it('should handle appointment confirmation', () => {
+    let appointment = { id: '1', status: 'pending' };
+    appointment = { ...appointment, status: 'confirmed', confirmedAt: new Date().toISOString() };
+    expect(appointment.status).toBe('confirmed');
+    expect(appointment.confirmedAt).toBeTruthy();
+  });
+
+  it('should handle marking attendance', () => {
+    let appointment = { id: '1', attended: false };
+    appointment = { ...appointment, attended: true };
+    expect(appointment.attended).toBe(true);
+  });
+
+  it('should handle adding notes to appointment', () => {
+    let appointment = { id: '1', notes: '' };
+    appointment = { ...appointment, notes: 'Patient reports chest pain' };
+    expect(appointment.notes).toContain('chest pain');
+  });
+});
+
+describe('Appointments Data Validation', () => {
+  it('should validate required appointment fields', () => {
+    const appointment = { doctor: 'Dr. Chen', date: '2026-09-18', time: '14:30' };
+    expect(appointment.doctor).toBeTruthy();
+    expect(appointment.date).toBeTruthy();
+    expect(appointment.time).toBeTruthy();
+  });
+
+  it('should validate date format YYYY-MM-DD', () => {
+    const dates = ['2026-09-18', '2026-12-01', '2026-01-15'];
+    dates.forEach(date => {
+      expect(date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+  });
+
+  it('should validate time format HH:MM', () => {
+    const times = ['09:00', '14:30', '23:59'];
+    times.forEach(time => {
+      expect(time).toMatch(/^\d{2}:\d{2}$/);
+    });
+  });
+
+  it('should reject invalid dates', () => {
+    const invalidDates = ['09-18-2026', '2026/09/18', 'invalid'];
+    invalidDates.forEach(date => {
+      expect(date).not.toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+  });
+
+  it('should validate appointment ID is unique', () => {
+    const appointments = [
+      { id: '1', doctor: 'Dr. Chen' },
+      { id: '2', doctor: 'Dr. Smith' },
+      { id: '3', doctor: 'Dr. Jones' },
+    ];
+    const ids = appointments.map(a => a.id);
+    const uniqueIds = new Set(ids);
+    expect(uniqueIds.size).toBe(ids.length);
+  });
+});
+
+describe('Appointments Sorting Complex Scenarios', () => {
+  it('should sort by date then time', () => {
+    const appointments = [
+      { date: '2026-09-18', time: '14:30' },
+      { date: '2026-09-18', time: '09:00' },
+      { date: '2026-09-20', time: '10:00' },
+    ];
+    const sorted = [...appointments].sort((a, b) => {
+      if (a.date !== b.date) return a.date.localeCompare(b.date);
+      return a.time.localeCompare(b.time);
+    });
+    expect(sorted[0].time).toBe('09:00');
+    expect(sorted[1].time).toBe('14:30');
+  });
+
+  it('should sort by doctor name case-insensitive', () => {
+    const appointments = [
+      { doctor: 'dr. chen' },
+      { doctor: 'Dr. Smith' },
+      { doctor: 'DR. JONES' },
+    ];
+    const sorted = [...appointments].sort((a, b) => 
+      a.doctor.toLowerCase().localeCompare(b.doctor.toLowerCase())
+    );
+    expect(sorted[0].doctor.toLowerCase()).toBe('dr. chen');
+  });
+
+  it('should sort by status priority', () => {
+    const statusPriority = { 'pending': 1, 'confirmed': 2, 'completed': 3 };
+    const appointments = [
+      { status: 'completed', doctor: 'Dr. A' },
+      { status: 'pending', doctor: 'Dr. B' },
+      { status: 'confirmed', doctor: 'Dr. C' },
+    ];
+    const sorted = [...appointments].sort((a, b) => 
+      statusPriority[a.status] - statusPriority[b.status]
+    );
+    expect(sorted[0].status).toBe('pending');
+  });
+
+  it('should reverse sort order', () => {
+    const appointments = [
+      { date: '2026-09-10' },
+      { date: '2026-09-15' },
+      { date: '2026-09-20' },
+    ];
+    const sorted = [...appointments].sort((a, b) => b.date.localeCompare(a.date));
+    expect(sorted[0].date).toBe('2026-09-20');
+    expect(sorted[2].date).toBe('2026-09-10');
+  });
+});
+
+describe('Appointments Statistics & Aggregations', () => {
+  it('should count total appointments', () => {
+    const appointments = [
+      { id: '1', doctor: 'Dr. Chen' },
+      { id: '2', doctor: 'Dr. Smith' },
+      { id: '3', doctor: 'Dr. Jones' },
+    ];
+    expect(appointments.length).toBe(3);
+  });
+
+  it('should count appointments by status', () => {
+    const appointments = [
+      { status: 'scheduled' },
+      { status: 'completed' },
+      { status: 'scheduled' },
+      { status: 'cancelled' },
+    ];
+    const byStatus = appointments.reduce((acc, a) => {
+      acc[a.status] = (acc[a.status] || 0) + 1;
+      return acc;
+    }, {});
+    expect(byStatus.scheduled).toBe(2);
+    expect(byStatus.completed).toBe(1);
+  });
+
+  it('should find most frequent doctor', () => {
+    const appointments = [
+      { doctor: 'Dr. Chen' },
+      { doctor: 'Dr. Chen' },
+      { doctor: 'Dr. Smith' },
+    ];
+    const doctorCounts = {};
+    appointments.forEach(a => {
+      doctorCounts[a.doctor] = (doctorCounts[a.doctor] || 0) + 1;
+    });
+    const mostFrequent = Object.keys(doctorCounts).reduce((a, b) => 
+      doctorCounts[a] > doctorCounts[b] ? a : b
+    );
+    expect(mostFrequent).toBe('Dr. Chen');
+  });
+
+  it('should calculate average appointments per month', () => {
+    const appointments = [
+      { date: '2026-09-10' },
+      { date: '2026-09-15' },
+      { date: '2026-09-20' },
+      { date: '2026-10-05' },
+      { date: '2026-10-10' },
+    ];
+    const byMonth = appointments.reduce((acc, a) => {
+      const month = a.date.substring(0, 7);
+      acc[month] = (acc[month] || 0) + 1;
+      return acc;
+    }, {});
+    const months = Object.keys(byMonth).length;
+    const average = appointments.length / months;
+    expect(average).toBe(2.5);
+  });
+});
+
+

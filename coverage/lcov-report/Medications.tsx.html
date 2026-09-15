@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">17.07% </span>
+                <span class="strong">40.9% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>7/41</span>
+                <span class='fraction'>18/44</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">16.66% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/36</span>
+                <span class='fraction'>6/36</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">18.75% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>3/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">18.91% </span>
+                <span class="strong">45% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>7/37</span>
+                <span class='fraction'>18/40</span>
             </div>
         
             
@@ -245,23 +245,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">69x</span>
+<span class="cline-any cline-yes">69x</span>
+<span class="cline-any cline-yes">69x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -417,23 +417,23 @@ const TODAY = new Date().toISOString().split('T')[0];
 &nbsp;
 const LS_MEDS_KEY = 'careconnect_meds_taken';
 &nbsp;
-function <span class="fstat-no" title="function not covered" >loadTakenFromStorage(</span>): Record&lt;string, boolean&gt; {
-<span class="cstat-no" title="statement not covered" >  try {</span>
-    const raw = <span class="cstat-no" title="statement not covered" >localStorage.getItem(LS_MEDS_KEY);</span>
-<span class="cstat-no" title="statement not covered" >    return raw ? JSON.parse(raw) : {};</span>
+export function loadTakenFromStorage(): Record&lt;string, boolean&gt; {
+  try {
+    const raw = localStorage.getItem(LS_MEDS_KEY);
+    return raw ? JSON.parse(raw) : {};
   } catch {
-<span class="cstat-no" title="statement not covered" >    return {};</span>
+    return {};
   }
 }
 &nbsp;
-function <span class="fstat-no" title="function not covered" >saveTakenToStorage(</span>takenMap: Record&lt;string, boolean&gt;) {
-<span class="cstat-no" title="statement not covered" >  localStorage.setItem(LS_MEDS_KEY, JSON.stringify(takenMap));</span>
+export function saveTakenToStorage(takenMap: Record&lt;string, boolean&gt;) {
+  localStorage.setItem(LS_MEDS_KEY, JSON.stringify(takenMap));
 }
 &nbsp;
-function <span class="fstat-no" title="function not covered" >formatTime(</span>time: string) {
-  const [h, m] = <span class="cstat-no" title="statement not covered" >time.split(':').map(Number);</span>
-  const suffix = <span class="cstat-no" title="statement not covered" >h &gt;= 12 ? 'pm' : 'am';</span>
-<span class="cstat-no" title="statement not covered" >  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${suffix}`;</span>
+export function formatTime(time: string) {
+  const [h, m] = time.split(':').map(Number);
+  const suffix = h &gt;= 12 ? 'pm' : 'am';
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${suffix}`;
 }
 &nbsp;
 export default function <span class="fstat-no" title="function not covered" >Medications(</span>) {
@@ -586,7 +586,7 @@ export default function <span class="fstat-no" title="function not covered" >Med
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-09-15T13:28:28.658Z
+                at 2026-09-15T13:36:21.270Z
             </div>
         <script src="prettify.js"></script>
         <script>
